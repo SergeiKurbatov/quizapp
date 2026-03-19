@@ -1,0 +1,28 @@
+:root {
+
+  /* font sizes */
+
+  --font-title: 1.8rem;
+  --font-subtitle: 1.2rem;
+  --font-text: 0.95rem;
+
+  /* colors */
+
+  --color-primary: #f163a5;
+  --color-primary-hover: #4f46e5;
+
+  --color-success: #22c55e;
+  --color-success-hover: #16a34a;
+
+  --color-background: #f3f4f6;
+  --color-card: #ffffff;
+
+  /* radius */
+
+  --radius-main: 10px;
+
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
