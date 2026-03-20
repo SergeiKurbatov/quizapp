@@ -1,11 +1,12 @@
-export async function createQuiz(quiz) {
-  const response = await fetch("http://localhost:8080/api/quizzes", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(quiz)
-  });
+import { getToken } from "./authService";
+import axios from "axios";
 
-  return response.json();
+const API_URL = "http://localhost:8080/api";
+
+const authHeader = () => ({
+  headers: { Authorization: `Bearer ${getToken()}` }
+});
+
+export async function createQuiz(quiz) {
+  return axios.post(`${API_URL}/quizzes`, quiz, authHeader());
 }
