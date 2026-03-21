@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-fix-sequences
+      author: team35
+      context: dev
+      changes:
+        - sql:
+            sql: SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
+        - sql:
+            sql: SELECT setval('quiz_id_seq', (SELECT MAX(id) FROM quiz));
+        - sql:
+            sql: SELECT setval('question_id_seq', (SELECT MAX(id) FROM question));
+        - sql:
+            sql: SELECT setval('answer_id_seq', (SELECT MAX(id) FROM answer));
+      rollback:
+        - sql:
+            sql: SELECT setval('users_id_seq', 1);

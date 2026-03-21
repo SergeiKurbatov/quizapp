@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-quizzes
+      id: 002-create-quiz
       author: team35
       changes:
         - createTable:
-            tableName: quizzes
+            tableName: quiz
             columns:
               - column:
                   name: id
@@ -16,11 +16,21 @@ databaseChangeLog:
                   name: title
                   type: VARCHAR(255)
               - column:
-                  name: description
-                  type: TEXT
+                  name: theme
+                  type: VARCHAR(255)
+              - column:
+                  name: creator_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_quiz_creator
+                    references: users(id)
               - column:
                   name: created_at
                   type: TIMESTAMP
+              - column:
+                  name: version
+                  type: VARCHAR(50)
       rollback:
         - dropTable:
-            tableName: quizzes
+            tableName: quiz

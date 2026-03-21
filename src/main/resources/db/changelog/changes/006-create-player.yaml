@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-player
+      author: team35
+      changes:
+        - createTable:
+            tableName: player
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: game_session_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_player_game_session
+                    references: game_session(id)
+              - column:
+                  name: nickname
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: score
+                  type: INT
+                  defaultValueNumeric: 0
+              - column:
+                  name: joined_at
+                  type: TIMESTAMP
+              - column:
+                  name: is_kicked
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+        - addUniqueConstraint:
+            tableName: player
+            columnNames: game_session_id, nickname
+            constraintName: uq_player_session_nickname
+      rollback:
+        - dropTable:
+            tableName: player

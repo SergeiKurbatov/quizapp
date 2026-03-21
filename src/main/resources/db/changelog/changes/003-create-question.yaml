@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 002-create-questions
+      id: 003-create-question
       author: team35
       changes:
         - createTable:
-            tableName: questions
+            tableName: question
             columns:
               - column:
                   name: id
@@ -17,14 +17,20 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_questions_quiz
-                    references: quizzes(id)
+                    foreignKeyName: fk_question_quiz
+                    references: quiz(id)
               - column:
                   name: text
                   type: TEXT
               - column:
-                  name: order_index
+                  name: question_type
+                  type: VARCHAR(50)
+              - column:
+                  name: time_limit
                   type: INT
+              - column:
+                  name: version
+                  type: VARCHAR(50)
       rollback:
         - dropTable:
-            tableName: questions
+            tableName: question

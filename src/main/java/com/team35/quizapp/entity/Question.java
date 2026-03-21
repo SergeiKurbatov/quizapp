@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "questions")
+@Table(name = "question")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Question {
 
@@ -17,16 +17,16 @@ public class Question {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quiz_id")
+    @JoinColumn(name = "quiz_id", nullable = false)
     @JsonIgnore
     private Quiz quiz;
 
     private String text;
+    private String questionType;
+    private Integer timeLimit;
+    private String version;
 
-    @Column(name = "order_index")
-    private int orderIndex;
-
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Answer> answers = new ArrayList<>();
 }

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 005-grant-app-user-permissions
+      id: 010-grant-app-user-permissions
       author: team35
       changes:
         - sql:

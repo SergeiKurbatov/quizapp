@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 003-create-answers
+      id: 004-create-answer
       author: team35
       changes:
         - createTable:
-            tableName: answers
+            tableName: answer
             columns:
               - column:
                   name: id
@@ -17,15 +17,18 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_answers_question
-                    references: questions(id)
+                    foreignKeyName: fk_answer_question
+                    references: question(id)
               - column:
                   name: text
                   type: VARCHAR(255)
               - column:
-                  name: correct
+                  name: is_correct
                   type: BOOLEAN
                   defaultValueBoolean: false
+              - column:
+                  name: version
+                  type: VARCHAR(50)
       rollback:
         - dropTable:
-            tableName: answers
+            tableName: answer
