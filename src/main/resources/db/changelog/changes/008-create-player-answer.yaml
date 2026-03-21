@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-player-answer
+      author: team35
+      changes:
+        - createTable:
+            tableName: player_answer
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: player_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_player_answer_player
+                    references: player(id)
+              - column:
+                  name: question_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_player_answer_question
+                    references: question(id)
+              - column:
+                  name: answer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_player_answer_answer
+                    references: answer(id)
+              - column:
+                  name: response_time
+                  type: INT
+              - column:
+                  name: score_awarded
+                  type: INT
+        - addUniqueConstraint:
+            tableName: player_answer
+            columnNames: player_id, question_id
+            constraintName: uq_player_answer_player_question
+      rollback:
+        - dropTable:
+            tableName: player_answer

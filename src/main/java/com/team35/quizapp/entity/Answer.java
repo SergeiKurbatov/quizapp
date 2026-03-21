@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "answers")
+@Table(name = "answer")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Answer {
 
@@ -14,10 +14,11 @@ public class Answer {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
+    @JoinColumn(name = "question_id", nullable = false)
     @JsonIgnore
     private Question question;
 
     private String text;
-    private boolean correct;
+    private Boolean isCorrect;
+    private String version;
 }

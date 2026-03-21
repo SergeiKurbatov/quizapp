@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-session-question
+      author: team35
+      changes:
+        - createTable:
+            tableName: session_question
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: game_session_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_session_question_game_session
+                    references: game_session(id)
+              - column:
+                  name: question_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_session_question_question
+                    references: question(id)
+              - column:
+                  name: order_index
+                  type: INT
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: session_question
+            columnNames: game_session_id, order_index
+            constraintName: uq_session_question_order
+      rollback:
+        - dropTable:
+            tableName: session_question

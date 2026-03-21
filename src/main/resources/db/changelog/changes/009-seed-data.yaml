@@ -1,0 +1,250 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-seed-data
+      author: team35
+      context: dev
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: email
+                  value: admin@quizapp.com
+              - column:
+                  name: password_hash
+                  value: placeholder_hash
+              - column:
+                  name: created_at
+                  valueDate: now()
+
+        - insert:
+            tableName: quiz
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: title
+                  value: Java Basics
+              - column:
+                  name: theme
+                  value: Programming
+              - column:
+                  name: creator_id
+                  value: 1
+              - column:
+                  name: created_at
+                  valueDate: now()
+              - column:
+                  name: version
+                  value: "1.0"
+
+        - insert:
+            tableName: question
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: quiz_id
+                  value: 1
+              - column:
+                  name: text
+                  value: What is the size of an int in Java?
+              - column:
+                  name: question_type
+                  value: SINGLE_CHOICE
+              - column:
+                  name: time_limit
+                  value: 30
+              - column:
+                  name: version
+                  value: "1.0"
+
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 16 bits
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 32 bits
+              - column:
+                  name: is_correct
+                  valueBoolean: true
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 64 bits
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: question_id
+                  value: 1
+              - column:
+                  name: text
+                  value: 8 bits
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+
+        - insert:
+            tableName: question
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: quiz_id
+                  value: 1
+              - column:
+                  name: text
+                  value: Which keyword prevents a class from being subclassed?
+              - column:
+                  name: question_type
+                  value: SINGLE_CHOICE
+              - column:
+                  name: time_limit
+                  value: 20
+              - column:
+                  name: version
+                  value: "1.0"
+
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: static
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: abstract
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: final
+              - column:
+                  name: is_correct
+                  valueBoolean: true
+              - column:
+                  name: version
+                  value: "1.0"
+        - insert:
+            tableName: answer
+            columns:
+              - column:
+                  name: id
+                  value: 8
+              - column:
+                  name: question_id
+                  value: 2
+              - column:
+                  name: text
+                  value: sealed
+              - column:
+                  name: is_correct
+                  valueBoolean: false
+              - column:
+                  name: version
+                  value: "1.0"
+
+      rollback:
+        - delete:
+            tableName: answer
+            where: question_id IN (1, 2)
+        - delete:
+            tableName: question
+            where: quiz_id = 1
+        - delete:
+            tableName: quiz
+            where: id = 1
+        - delete:
+            tableName: users
+            where: id = 1

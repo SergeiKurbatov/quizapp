@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-game-session
+      author: team35
+      changes:
+        - createTable:
+            tableName: game_session
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: quiz_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_game_session_quiz
+                    references: quiz(id)
+              - column:
+                  name: host_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_game_session_host
+                    references: users(id)
+              - column:
+                  name: game_pin
+                  type: INT
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uq_game_session_pin
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: current_question_index
+                  type: INT
+              - column:
+                  name: question_started_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            tableName: game_session
