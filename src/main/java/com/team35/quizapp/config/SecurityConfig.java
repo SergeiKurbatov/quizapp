@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/api/auth/me", true)
+                .defaultSuccessUrl("http://localhost:3000/", true)
             );
 
         return http.build();
