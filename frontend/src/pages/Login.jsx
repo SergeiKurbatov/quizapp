@@ -8,6 +8,11 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  const handleGoogleLogin = () => {
+      // This forces a full page reload, which is REQUIRED for OAuth2
+      window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -72,7 +77,9 @@ function Login() {
               {error}
             </p>
           )}
-
+          
+          <button onClick={handleGoogleLogin}>Login with Google</button>
+          
           <button
             onClick={handleSubmit}
             disabled={loading || !email || !password}
