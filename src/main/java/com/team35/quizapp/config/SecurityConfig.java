@@ -2,11 +2,16 @@ package com.team35.quizapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.authentication.AuthenticationManager;
+//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.List;
 
 @Configuration
@@ -15,15 +20,19 @@ public class SecurityConfig {
    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/users", "/api/hello").permitAll()
-                .requestMatchers("/api/**").permitAll()
+                // These must be accessible to everyone
+                .requestMatchers("/api/auth/login", "/api/auth/**", "/api/auth/register", "/api/users/**", "/api/hello").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/api/auth/me", true)
+            // This stops the automatic 302 redirect for API calls
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                })
             );
 
         return http.build();
