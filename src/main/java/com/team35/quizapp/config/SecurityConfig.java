@@ -1,5 +1,6 @@
 package com.team35.quizapp.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 //import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +18,10 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-   @Bean
+    @Value("${spring.security.oauth2.client.registration.google.client-id:}")
+    private String googleClientId;
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -35,16 +39,22 @@ public class SecurityConfig {
                 })
             );
 
+        if (googleClientId != null && !googleClientId.isBlank()) {
+            http.oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("http://localhost:3000/", true)
+            );
+        }
+
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Allow your React app
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // Mandatory for cookies/sessions
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
