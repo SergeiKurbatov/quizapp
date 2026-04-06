@@ -1,32 +1,43 @@
 package com.team35.quizapp;
 
-import tools.jackson.databind.ObjectMapper;
-import com.team35.quizapp.controller.UserController;
-import com.team35.quizapp.dto.user.CreateUserRequest;
-import com.team35.quizapp.dto.user.UserResponse;
-import com.team35.quizapp.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.invocation.InvocationOnMock;
 import org.junit.jupiter.api.Test;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
+import com.team35.quizapp.config.JwtAuthFilter;
+import com.team35.quizapp.controller.UserController;
+import com.team35.quizapp.dto.user.CreateUserRequest;
+import com.team35.quizapp.dto.user.UserResponse;
+import com.team35.quizapp.service.UserService;
 
 
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+
 @WebMvcTest(value = UserController.class, excludeAutoConfiguration = {
-    OAuth2ClientWebSecurityAutoConfiguration.class
+    OAuth2ClientWebSecurityAutoConfiguration.class,
+    OAuth2ClientAutoConfiguration.class
 })
 class UserControllerTest {
 
@@ -38,6 +49,19 @@ class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean JwtAuthFilter jwtAuthFilter;
+
+    @BeforeEach
+	void setUp() throws Exception {
+    	    doAnswer((InvocationOnMock invocation) -> {
+        	HttpServletRequest req = invocation.getArgument(0);
+        	HttpServletResponse res = invocation.getArgument(1);
+        	FilterChain chain = invocation.getArgument(2);
+        	chain.doFilter(req, res);
+        	return null;
+    	    }).when(jwtAuthFilter).doFilter(any(), any(), any());
+	}
 
     // Test 1: successfully create a user
     @Test
