@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { createQuiz } from "../services/quizService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function HostCreateGame() {
-  const [title, setTitle] = useState("");
-  const [theme, setTheme] = useState("");
-  const [questions, setQuestions] = useState([]);
-  const [saveStatus, setSaveStatus] = useState(null); // null | "success" | "error"
+  const [saveStatus, setSaveStatus] = useState(null);
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const existingQuiz = location.state?.quiz;
+
+  const [title, setTitle] = useState(existingQuiz?.title || "");
+  const [theme, setTheme] = useState(existingQuiz?.theme || "");
+  const [questions, setQuestions] = useState(existingQuiz?.questions || []);
   const [questionText, setQuestionText] = useState("");
   const [timeLimit, setTimeLimit] = useState(30);
   const [answers, setAnswers] = useState(["", "", "", ""]);
@@ -28,7 +31,6 @@ function HostCreateGame() {
       text: answer,
       isCorrect: correct.includes(index),
     }));
-
     const newQuestion = { text: questionText, timeLimit, answers: formattedAnswers };
     setQuestions([...questions, newQuestion]);
     setQuestionText("");
@@ -68,6 +70,18 @@ function HostCreateGame() {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-violet-500 flex items-center justify-center text-sm font-bold">Q</div>
           <span className="text-sm font-semibold text-white/80 tracking-wide uppercase">Quiz Builder</span>
+          <button
+            onClick={() => navigate("/MyQuizzes")}
+            className="ml-6 text-sm text-white/50 hover:text-white transition"
+          >
+            My Quizzes
+          </button>
+          <button
+            onClick={() => { setTitle(""); setTheme(""); setQuestions([]); setQuestionText(""); setAnswers(["","","",""]); setCorrect([]); setActiveQuestion(null); }}
+            className="ml-4 text-sm text-white/50 hover:text-white transition"
+          >
+            + New Quiz
+          </button>
         </div>
         <div className="flex items-center gap-3">
           {saveStatus === "success" && (
@@ -79,7 +93,6 @@ function HostCreateGame() {
           <button
             onClick={saveQuiz}
             disabled={!title.trim() || questions.length === 0}
-
             className="px-4 py-2 text-sm font-medium rounded-lg border border-white/20 text-white/70 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
           >
             Save Draft
@@ -130,7 +143,14 @@ function HostCreateGame() {
             {questions.map((q, i) => (
               <div
                 key={i}
-                onClick={() => setActiveQuestion(activeQuestion === i ? null : i)}
+                onClick={() => {
+                  const q = questions[i];
+                  setActiveQuestion(activeQuestion === i ? null : i);
+                  setQuestionText(q.text);
+                  setTimeLimit(q.timeLimit || 30);
+                  setAnswers(q.answers.map(a => a.text));
+                  setCorrect(q.answers.map((a, idx) => a.isCorrect ? idx : null).filter(idx => idx !== null));
+                }}
                 className={`p-3 rounded-lg cursor-pointer border transition-all duration-150 ${
                   activeQuestion === i
                     ? "bg-violet-500/20 border-violet-500/50 text-white"
@@ -142,6 +162,12 @@ function HostCreateGame() {
                     {i + 1}
                   </span>
                   <p className="text-sm truncate">{q.text || "Untitled question"}</p>
+                  <button
+                    onClick={e => { e.stopPropagation(); setQuestions(questions.filter((_, qi) => qi !== i)); }}
+                    className="ml-auto text-white/20 hover:text-red-400 transition text-xs"
+                  >
+                    ✕
+                  </button>
                 </div>
                 <div className="flex items-center gap-2 mt-2 ml-7">
                   <div className="flex gap-1">
@@ -168,7 +194,6 @@ function HostCreateGame() {
           <div className="max-w-2xl mx-auto">
 
             <div className="mb-4">
-
               <h1 className="text-2xl font-bold text-white">Add a Question</h1>
               <p className="text-white/40 text-sm mt-1">Click an answer to mark it as correct</p>
             </div>
