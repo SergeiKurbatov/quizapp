@@ -15,7 +15,8 @@ import org.springframework.test.context.TestPropertySource;
     "DB_ADMIN_USERNAME=sa",
     "DB_ADMIN_PASSWORD=",
     "spring.security.oauth2.client.registration.google.client-id=test",
-    "spring.security.oauth2.client.registration.google.client-secret=test"
+    "spring.security.oauth2.client.registration.google.client-secret=test",
+    "JWT_SECRET=testSecretKeyThatIsAtLeast32CharactersLong!!"
 })
 class QuizappApplicationTests {
 
