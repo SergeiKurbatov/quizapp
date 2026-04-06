@@ -4,6 +4,7 @@ import HostLobby from "./pages/HostLobby";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import MyQuizzes from "./pages/MyQuizzes";
 
 const router = createBrowserRouter([
   { path: "/Login", element: <Login /> },
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
     ) 
   },
   { path: "/HostLobby", element: <HostLobby /> },
-  
+  { path: "/MyQuizzes", element: <ProtectedRoute><MyQuizzes /></ProtectedRoute> },
 ]);
 
 function App() {
