@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import HostCreateGame from "./pages/HostCreateGame";
+import Home from "./pages/Home";
 import HostLobby from "./pages/HostLobby";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,6 +9,14 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 const router = createBrowserRouter([
   { path: "/Login", element: <Login /> },
   { path: "/Register", element: <Register /> },
+  { 
+    path: "/Home", 
+    element: (
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    ) 
+  },
   { path: "/", element: <Login /> },
   { 
     path: "/HostCreateGame", 

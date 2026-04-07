@@ -28,6 +28,15 @@ public class JwtProvider {
             .compact();
     }
     
+    public String extractEmail(String token) {
+    return Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .getSubject();
+}
+    
     public String generateToken(Authentication authentication) {
         String email = authentication.getName();
         Date now = new Date();
