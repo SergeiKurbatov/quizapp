@@ -26,3 +26,19 @@ public class QuizController {
         return ResponseEntity.ok(quizRepository.findByCreatorEmail(email));
     }
 }
+
+    private final QuizService quizService;
+
+    @Operation(summary = "Create a new quiz")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public QuizResponse createQuiz(@RequestBody CreateQuizRequest request) {
+        return quizService.createQuiz(request);
+    }
+
+    @Operation(summary = "Get my quizzes")
+    @GetMapping
+    public List<QuizResponse> getMyQuizzes() {
+        return quizService.getMyQuizzes();
+    }
+}

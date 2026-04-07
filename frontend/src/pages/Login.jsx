@@ -1,3 +1,5 @@
+import { getCurrentUser } from "../services/authService";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
@@ -10,8 +12,13 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  // Manual Email/Password Login
+
+  useEffect(() => {
+    getCurrentUser().then(user => {
+      if (user) navigate("/HostCreateGame");
+    });
+  }, [navigate]);
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
@@ -28,7 +35,7 @@ function Login() {
       setLoading(false);
     }
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4">
 

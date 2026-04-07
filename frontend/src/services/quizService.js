@@ -20,3 +20,7 @@ export const getMyQuizzes = async () => {
 export async function createQuiz(quiz) {
   return axios.post(`${API_URL}/quizzes`, quiz, authHeader());
 }
+
+export async function getMyQuizzes() {
+  return axios.get(`${API_URL}/quizzes`, authHeader());
+}

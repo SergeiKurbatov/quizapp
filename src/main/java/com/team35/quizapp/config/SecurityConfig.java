@@ -1,5 +1,7 @@
 package com.team35.quizapp.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -48,14 +50,18 @@ public class SecurityConfig {
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 })
-            );
+            )
+	    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Keep this if you still want the automatic OAuth2 flow, 
         // but remember we are handling Google manually via AuthController!
         if (googleClientId != null && !googleClientId.isBlank()) {
+            log.info("Google OAuth2 login enabled");
             http.oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("http://localhost:3000/", true)
             );
+        } else {
+            log.info("Google OAuth2 login disabled (GOOGLE_CLIENT_ID not set)");
         }
 
         return http.build();
