@@ -52,6 +52,12 @@ class UserControllerTest {
 
     @MockitoBean JwtAuthFilter jwtAuthFilter;
 
+    @MockitoBean
+    com.team35.quizapp.config.JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    com.team35.quizapp.config.JwtProvider jwtProvider;
+
     @BeforeEach
 	void setUp() throws Exception {
     	    doAnswer((InvocationOnMock invocation) -> {
