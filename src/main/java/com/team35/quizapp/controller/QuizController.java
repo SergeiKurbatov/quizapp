@@ -30,4 +30,11 @@ public class QuizController {
     public List<QuizResponse> getMyQuizzes() {
         return quizService.getMyQuizzes();
     }
+
+    @Operation(summary = "Delete a quiz")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteQuiz(@PathVariable Long id) {
+        quizService.deleteQuiz(id);
+    }
 }

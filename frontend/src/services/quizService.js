@@ -14,3 +14,7 @@ export async function createQuiz(quiz) {
 export async function getMyQuizzes() {
   return axios.get(`${API_URL}/quizzes`, authHeader());
 }
+
+export async function deleteQuiz(id) {
+  return axios.delete(`${API_URL}/quizzes/${id}`, authHeader());
+}
