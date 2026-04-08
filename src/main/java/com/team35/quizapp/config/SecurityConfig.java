@@ -1,13 +1,15 @@
 package com.team35.quizapp.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy; // Added
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // Added
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,27 +18,34 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
+@Slf4j
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${spring.security.oauth2.client.registration.google.client-id:}")
     private String googleClientId;
-
-    private final JwtAuthFilter jwtAuthFilter;
-
+    
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            // 1. SET STATELESS SESSION MANAGEMENT (Critical for JWT)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
             .authorizeHttpRequests(auth -> auth
-                // These must be accessible to everyone
-                .requestMatchers("/api/auth/login", "/api/auth/**", "/api/auth/register", "/api/users/**", "/api/hello").permitAll()
+                .requestMatchers("/api/auth/**", "/api/users/**", "/api/hello").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
-            // This stops the automatic 302 redirect for API calls
+            // 2. USE THE CORRECT CLASS FOR FILTER POSITIONING
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
@@ -44,10 +53,15 @@ public class SecurityConfig {
             )
 	    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+        // Keep this if you still want the automatic OAuth2 flow, 
+        // but remember we are handling Google manually via AuthController!
         if (googleClientId != null && !googleClientId.isBlank()) {
+            log.info("Google OAuth2 login enabled");
             http.oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("http://localhost:3000/", true)
             );
+        } else {
+            log.info("Google OAuth2 login disabled (GOOGLE_CLIENT_ID not set)");
         }
 
         return http.build();
@@ -57,8 +71,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        // Standard headers for React apps
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

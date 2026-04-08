@@ -26,9 +26,9 @@ function Login() {
 
     try {
       const data = await login(email, password);
-      // Ensure your backend returns the token in a field named 'token'
+      // Ensure backend returns the token in a field named 'token'
       localStorage.setItem("token", data.token); 
-      navigate("/HostCreateGame");
+      navigate("/Home");
     } catch (err) {
       setError("Invalid email or password.");
     } finally {
@@ -57,12 +57,11 @@ function Login() {
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
-                  // FIX: Sending as an object { token: "..." }
                   const res = await axios.post('http://localhost:8080/api/auth/google', {
                     token: credentialResponse.credential
                   });
                   localStorage.setItem('token', res.data.token);
-                  navigate('/HostCreateGame');
+                  navigate('/Home');
                 } catch (err) {
                   console.error("Google Login Error:", err);
                   setError("Google authentication failed on server.");
