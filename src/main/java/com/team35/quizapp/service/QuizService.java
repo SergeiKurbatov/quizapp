@@ -23,12 +23,10 @@ public class QuizService {
     private final UserRepository userRepository;
 
     public QuizResponse createQuiz(CreateQuizRequest request) {
-        // Get current logged in user from JWT
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        // Build questions and answers
         List<Question> questions = request.questions().stream().map(qReq -> {
             Question question = Question.builder()
                     .text(qReq.text())
@@ -48,7 +46,6 @@ public class QuizService {
             return question;
         }).toList();
 
-        // Build quiz
         Quiz quiz = Quiz.builder()
                 .title(request.title())
                 .theme(request.theme())
@@ -56,7 +53,6 @@ public class QuizService {
                 .questions(questions)
                 .build();
 
-        // Set quiz reference on each question
         questions.forEach(q -> q.setQuiz(quiz));
 
         Quiz saved = quizRepository.save(quiz);
@@ -79,6 +75,7 @@ public class QuizService {
                 questionResponses
         );
     }
+
     public List<QuizResponse> getMyQuizzes() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userRepository.findByEmail(email)
@@ -87,6 +84,7 @@ public class QuizService {
                 .map(this::toResponse)
                 .toList();
     }
+
     public void deleteQuiz(Long id) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
