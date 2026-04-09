@@ -1,14 +1,14 @@
 package com.team35.quizapp.controller;
 
-import java.util.List;
 import com.team35.quizapp.dto.quiz.CreateQuizRequest;
 import com.team35.quizapp.dto.quiz.QuizResponse;
 import com.team35.quizapp.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Quiz", description = "Quiz management")
 @RestController
@@ -26,7 +26,7 @@ public class QuizController {
     }
 
     @Operation(summary = "Get my quizzes")
-    @GetMapping
+    @GetMapping("/my-quizzes")
     public List<QuizResponse> getMyQuizzes() {
         return quizService.getMyQuizzes();
     }
