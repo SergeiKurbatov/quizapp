@@ -24,7 +24,9 @@ public class QuizService {
 
     public QuizResponse createQuiz(CreateQuizRequest request) {
         // Get current logged in user from JWT
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         // Build questions and answers
         List<Question> questions = request.questions().stream().map(qReq -> {
@@ -78,7 +80,9 @@ public class QuizService {
         );
     }
     public List<QuizResponse> getMyQuizzes() {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         return quizRepository.findByCreatorEmail(currentUser.getEmail()).stream()
                 .map(this::toResponse)
                 .toList();
