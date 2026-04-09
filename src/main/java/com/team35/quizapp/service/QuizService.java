@@ -78,6 +78,21 @@ public class QuizService {
         );
     }
     public List<QuizResponse> getMyQuizzes() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        String email;
+        if (principal instanceof String) {
+            email = (String) principal;
+        } else if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            email = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            throw new RuntimeException("User not authenticated correctly");
+        }
+
+        return quizRepository.findByCreatorEmail(email).stream()
+                .map(this::toResponse)
+                .toList();
+    }
         User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return quizRepository.findByCreatorEmail(currentUser.getEmail()).stream()
                 .map(this::toResponse)
