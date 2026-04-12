@@ -89,7 +89,7 @@ function HostCreateGame() {
           <div className="w-8 h-8 rounded-lg bg-violet-500 flex items-center justify-center text-sm font-bold">Q</div>
           <span className="text-sm font-semibold text-white/80 tracking-wide uppercase">Quiz Builder</span>
           <button
-            onClick={() => navigate("/MyQuizzes")}
+            onClick={() => navigate("/Home")}
             className="ml-6 text-sm text-white/50 hover:text-white transition"
           >
             My Quizzes

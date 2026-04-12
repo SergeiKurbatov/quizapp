@@ -72,7 +72,6 @@ public class QuizService {
                 .questions(questions)
                 .build();
 
-        // Set quiz reference on each question
         questions.forEach(q -> q.setQuiz(quiz));
 
         Quiz saved = quizRepository.save(quiz);
