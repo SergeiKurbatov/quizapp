@@ -9,6 +9,7 @@ import com.team35.quizapp.repository.QuizRepository;
 import com.team35.quizapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -22,11 +23,28 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final UserRepository userRepository;
 
-    public QuizResponse createQuiz(CreateQuizRequest request) {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    /**
+     * Helper method to safely extract the email from the Security Context
+     */
+    private String getCurrentUserEmail() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof String) {
+            return (String) principal;
+        } else if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User session not found");
+    }
 
+    public QuizResponse createQuiz(CreateQuizRequest request) {
+        // 1. Get the email from Principal (it's a String in JWT flow)
+        String email = getCurrentUserEmail();
+
+        // 2. Fetch the actual User Entity from the DB
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // 3. Build questions and answers
         List<Question> questions = request.questions().stream().map(qReq -> {
             Question question = Question.builder()
                     .text(qReq.text())
@@ -46,6 +64,7 @@ public class QuizService {
             return question;
         }).toList();
 
+        // 4. Build quiz and link the creator (User object)
         Quiz quiz = Quiz.builder()
                 .title(request.title())
                 .theme(request.theme())
@@ -57,6 +76,28 @@ public class QuizService {
 
         Quiz saved = quizRepository.save(quiz);
         return toResponse(saved);
+    }
+
+    public List<QuizResponse> getMyQuizzes() {
+        String email = getCurrentUserEmail();
+
+        return quizRepository.findByCreatorEmail(email).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public void deleteQuiz(Long id) {
+        String email = getCurrentUserEmail();
+
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
+
+        // Ownership check: Only the creator can delete their quiz
+        if (!quiz.getCreator().getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete someone else's quiz");
+        }
+
+        quizRepository.delete(quiz);
     }
 
     private QuizResponse toResponse(Quiz quiz) {
@@ -74,20 +115,5 @@ public class QuizService {
                 quiz.getCreatedAt(),
                 questionResponses
         );
-    }
-
-    public List<QuizResponse> getMyQuizzes() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        return quizRepository.findByCreatorEmail(currentUser.getEmail()).stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    public void deleteQuiz(Long id) {
-        Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quiz not found"));
-        quizRepository.delete(quiz);
     }
 }
