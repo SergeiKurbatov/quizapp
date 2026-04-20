@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-image-url-to-question
+      author: your-name
+      changes:
+        - addColumn:
+            tableName: question
+            columns:
+              - column:
+                  name: image_url
+                  type: varchar(255)
