@@ -90,7 +90,7 @@ function HostLobby() {
     }
   }
 
-  async function handleEndQuestion() {
+  const handleEndQuestion = useCallback(async () => {
     if (questionEndedRef.current) return;
     questionEndedRef.current = true;
     setTimeLeft(0);
@@ -102,7 +102,7 @@ function HostLobby() {
       console.error("Failed to end question", err);
       questionEndedRef.current = false;
     }
-  }
+  }, [gamePin]);
 
   async function handleNextQuestion() {
     try {
