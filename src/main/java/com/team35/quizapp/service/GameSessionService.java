@@ -108,20 +108,17 @@ public class GameSessionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the host can end the question");
         }
 
-        // Find current session question
         SessionQuestion currentSq = session.getSessionQuestions().stream()
                 .filter(sq -> sq.getOrderIndex() == session.getCurrentQuestionIndex())
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Question not found"));
 
-        // Find the correct answer ID
         Long correctAnswerId = currentSq.getQuestion().getAnswers().stream()
                 .filter(Answer::getIsCorrect)
                 .map(Answer::getId)
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No correct answer found"));
 
-        // Build top 5 leaderboard
         List<Player> sorted = playerRepository.findByGameSessionGamePin(gamePin).stream()
                 .filter(p -> !Boolean.TRUE.equals(p.getIsKicked()))
                 .sorted(Comparator.comparingInt(Player::getScore).reversed())
@@ -151,10 +148,11 @@ public class GameSessionService {
         int nextIndex = session.getCurrentQuestionIndex() + 1;
 
         if (nextIndex >= session.getSessionQuestions().size()) {
+            // Last question done — finish the game
             session.setStatus(GameStatus.FINISHED);
             gameSessionRepository.save(session);
             log.info("Game finished: pin={}", gamePin);
-            // End game broadcast will be handled in a future ticket
+            webSocketController.broadcastGameFinished(gamePin);
             return;
         }
 
@@ -179,7 +177,7 @@ public class GameSessionService {
         gameSessionRepository.save(session);
         log.info("Game force-ended by host: pin={}", gamePin);
 
-        webSocketController.broadcastGameEnded(gamePin);
+        webSocketController.broadcastGameFinished(gamePin);
     }
 
     private GameSessionResponse toResponse(GameSession session) {

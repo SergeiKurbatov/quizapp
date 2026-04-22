@@ -37,3 +37,7 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: db/changelog/db.changelog-1.1.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/db.changelog-1.2.yaml
+      relativeToChangelogFile: false
