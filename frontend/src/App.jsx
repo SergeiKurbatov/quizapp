@@ -6,11 +6,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyQuizzes from "./pages/MyQuizzes";
-<<<<<<< HEAD
+
 import JoinGame from "./pages/JoinGame";
-=======
+
 import PlayerView from "./pages/Player/PlayerView";
->>>>>>> QUIZ-40
+
 
 const router = createBrowserRouter([
   { path: "/Login", element: <Login /> },
