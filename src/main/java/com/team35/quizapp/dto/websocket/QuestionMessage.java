@@ -8,6 +8,7 @@ public record QuestionMessage(
         Integer timeLimit,
         Integer questionIndex,
         Integer totalQuestions,
+        boolean multipleCorrect,
         List<AnswerOption> answers
 ) {
     public record AnswerOption(Long id, String text) {}

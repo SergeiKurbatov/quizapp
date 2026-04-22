@@ -23,6 +23,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,45 +59,67 @@ public class PlayerService {
 
     @Transactional
     public AnswerSubmitResponse submitAnswer(Integer gamePin, SubmitAnswerRequest request) {
+        // 1. Find session
         GameSession session = gameSessionRepository.findByGamePin(gamePin)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found"));
 
+        // 2. Find player
         Player player = playerRepository.findByGameSessionGamePinAndNickname(gamePin, request.nickname())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
 
+        // 3. Prevent double submission
         if (playerAnswerRepository.existsByPlayerIdAndQuestionId(player.getId(), request.questionId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already answered this question");
         }
 
+        // 4. Load question
         Question question = questionRepository.findById(request.questionId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Question not found"));
 
-        Answer answer = answerRepository.findById(request.answerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer not found"));
+        // 5. Load submitted answers
+        List<Answer> submittedAnswers = answerRepository.findAllById(request.answerIds());
+        if (submittedAnswers.size() != request.answerIds().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more answer IDs not found");
+        }
 
+        // 6. Calculate response time
         int responseTime = (int) Duration.between(session.getQuestionStartedAt(), LocalDateTime.now()).getSeconds();
 
-        int score = answer.getIsCorrect() ? calculateScore(responseTime, question.getTimeLimit()) : 0;
+        // 7. Check correctness:
+        //    Player must select ALL correct answers and NO wrong ones to score
+        Set<Long> correctAnswerIds = question.getAnswers().stream()
+                .filter(a -> Boolean.TRUE.equals(a.getIsCorrect()))
+                .map(Answer::getId)
+                .collect(Collectors.toSet());
 
-        PlayerAnswer playerAnswer = PlayerAnswer.builder()
-                .player(player)
-                .question(question)
-                .answer(answer)
-                .responseTime(responseTime)
-                .scoreAwarded(score)
-                .build();
-        playerAnswerRepository.save(playerAnswer);
+        Set<Long> submittedIds = request.answerIds().stream().collect(Collectors.toSet());
+        boolean fullyCorrect = submittedIds.equals(correctAnswerIds);
 
+        int score = fullyCorrect ? calculateScore(responseTime, question.getTimeLimit()) : 0;
+
+        // 8. Save one PlayerAnswer row per submitted answer
+        for (Answer answer : submittedAnswers) {
+            PlayerAnswer playerAnswer = PlayerAnswer.builder()
+                    .player(player)
+                    .question(question)
+                    .answer(answer)
+                    .responseTime(responseTime)
+                    .scoreAwarded(score) // same score recorded on each row; total counted once below
+                    .build();
+            playerAnswerRepository.save(playerAnswer);
+        }
+
+        // 9. Update player total score (once, not per answer)
         player.setScore(player.getScore() + score);
         playerRepository.save(player);
 
-        // Broadcast updated answer count to host
+        // 10. Broadcast updated answer count
         webSocketController.broadcastAnswerCount(gamePin, request.questionId());
 
-        log.info("Answer saved: pin={}, nickname={}, correct={}, score={}, responseTime={}s",
-                gamePin, request.nickname(), answer.getIsCorrect(), score, responseTime);
+        log.info("Answer saved: pin={}, nickname={}, fullyCorrect={}, score={}, responseTime={}s",
+                gamePin, request.nickname(), fullyCorrect, score, responseTime);
 
-        return new AnswerSubmitResponse(answer.getIsCorrect(), score, player.getScore());
+        return new AnswerSubmitResponse(fullyCorrect, score, player.getScore());
     }
 
     /**

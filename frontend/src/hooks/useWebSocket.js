@@ -55,8 +55,10 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
           if (onAnswerCountRef.current) onAnswerCountRef.current(data);
         });
 
-        client.subscribe(`/topic/game/${gamePin}/ended`, () => {
-          if (onGameEndedRef.current) onGameEndedRef.current();
+        // New: /finished carries full leaderboard
+        client.subscribe(`/topic/game/${gamePin}/finished`, (message) => {
+          const data = JSON.parse(message.body);
+          if (onGameEndedRef.current) onGameEndedRef.current(data);
         });
 
         if (nickname) {

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2-fix-player-answer-unique-constraint
+      author: sergei
+      changes:
+        - dropUniqueConstraint:
+            constraintName: uq_player_answer_player_question
+            tableName: player_answer
+        - addUniqueConstraint:
+            columnNames: player_id, question_id, answer_id
+            constraintName: uq_player_answer_player_question_answer
+            tableName: player_answer
