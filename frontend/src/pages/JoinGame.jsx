@@ -347,16 +347,16 @@ function JoinGame() {
   // ── WAITING PHASE ─────────────────────────────────────────────────────────
   if (joined) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-between p-6">
+        <div className="min-h-screen h-screen bg-gray-950 text-white flex flex-col items-center justify-between p-6 overflow-hidden">
         {/* Top Header - Mobile Style */}
-        <div className="w-full flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/10">
+        <div className="w-full flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/10">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Playing as</p>
-            <p className="text-lg font-bold text-violet-400">{nickname}</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-white/40">Playing as</p>
+            <p className="text-4xl font-bold text-violet-400">{nickname}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Game PIN</p>
-            <p className="text-lg font-black tracking-tight">{gamePin}</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-white/40">Game PIN</p>
+            <p className="text-4xl font-black tracking-tight">{gamePin}</p>
           </div>
         </div>
 
@@ -365,13 +365,13 @@ function JoinGame() {
           <div className="relative mb-8">
              {/* Animated Pulsing Rings */}
             <div className="absolute inset-0 bg-violet-500 rounded-full animate-ping opacity-20"></div>
-            <div className="relative w-24 h-24 rounded-full bg-violet-600 flex items-center justify-center shadow-[0_0_40px_rgba(139,92,246,0.3)]">
-              <span className="text-4xl">🎮</span>
+            <div className="relative w-40 h-40 rounded-full bg-violet-600 flex items-center justify-center shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+              <span className="text-7xl">🎮</span>
             </div>
           </div>
-          
-          <h1 className="text-3xl font-black mb-3 italic">You're in!</h1>
-          <p className="text-white/50 text-base max-w-[200px]">
+
+          <h1 className="text-7xl font-black mb-3 italic">You're in!</h1>
+          <p className="text-white/50 text-3xl max-w-xs">
             Check your name on the big screen
           </p>
         </div>
@@ -380,7 +380,7 @@ function JoinGame() {
         <div className="w-full">
           <div className="flex items-center justify-center gap-3 bg-white/5 py-4 px-6 rounded-full border border-white/5 animate-pulse">
             <div className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-            <p className="text-sm font-medium text-white/60">Waiting for host to start...</p>
+            <p className="text-3xl font-medium text-white/60">Waiting for host to start...</p>
           </div>
         </div>
       </div>
@@ -402,7 +402,7 @@ function JoinGame() {
             <p className="text-white/40 text-3xl">Enter a nickname</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-8">
              <div className="relative">
                 <input
                   type="text"
@@ -411,7 +411,7 @@ function JoinGame() {
                   onChange={e => setNickname(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleJoin()}
                   maxLength={20}
-                  className="w-full bg-gray-900 border-2 border-white/10 rounded-2xl px-6 py-5 text-3xl font-bold text-white placeholder-white/20 focus:outline-none focus:border-violet-500 transition-all text-center"
+                  className="w-full bg-gray-900 border-2 border-white/10 rounded-2xl px-6 py-7 text-3xl font-bold text-white placeholder-white/20 focus:outline-none focus:border-violet-500 transition-all text-center"
                 />
              </div>
 
@@ -424,7 +424,7 @@ function JoinGame() {
             <button
               onClick={handleJoin}
               disabled={!nickname.trim()}
-              className="w-full py-5 rounded-2xl font-black text-3xl bg-violet-500 hover:bg-violet-400 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_8px_0_rgb(109,40,217)] active:shadow-none active:translate-y-1"
+              className="w-full py-7 rounded-2xl font-black text-3xl bg-violet-500 hover:bg-violet-400 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_8px_0_rgb(109,40,217)] active:shadow-none active:translate-y-1"
             >
               Ready!
             </button>
