@@ -389,7 +389,7 @@ function JoinGame() {
 
   // ── JOIN SCREEN ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col p-6">
+      <div className="fixed inset-0 bg-gray-950 text-white flex flex-col p-6 overflow-hidden">
       <div className="flex-1 flex flex-col justify-center items-center">
         {/* Minimal Logo */}
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center shadow-lg mb-8 rotate-3">
