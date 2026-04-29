@@ -310,7 +310,7 @@ function HostLobby() {
       </div>
 
       <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center mb-12 w-full max-w-md shadow-2xl">
-        <p className="text-white/40 mb-2 uppercase font-semibold">Join at <span className="text-violet-400">localhost:3000/game/{gamePin}</span></p>
+        <p className="text-white/40 mb-2 uppercase font-semibold">Join at <span className="text-violet-400">{window.location.host}/game/{gamePin}</span></p>
         <h1 className="text-7xl font-black tracking-tighter text-white">{gamePin}</h1>
       </div>
 
