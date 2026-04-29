@@ -157,8 +157,8 @@ function JoinGame() {
               return (
                 <div key={entry.position} className={`flex items-center gap-4 py-3 border-b border-white/5 last:border-0 ${isMe ? "text-violet-300" : ""}`}>
                   <span className="text-2xl w-8 text-center">{entry.position <= 3 ? MEDAL[entry.position - 1] : `${entry.position}.`}</span>
-                  <span className="flex-1 font-semibold">{entry.nickname}{isMe ? " (you)" : ""}</span>
-                  <span className="font-bold">{entry.score} pts</span>
+                  <span className="flex-1 font-semibold text-base">{entry.nickname}{isMe ? " (you)" : ""}</span>
+                  <span className="font-bold text-base">{entry.score} pts</span>
                 </div>
               );
             })}
@@ -217,8 +217,8 @@ function JoinGame() {
               return (
                 <div key={entry.position} className={`flex items-center gap-3 py-2.5 border-b border-white/5 last:border-0 ${isMe ? "text-violet-300" : ""}`}>
                   <span className="text-lg w-7 text-center">{entry.position <= 3 ? MEDAL[entry.position - 1] : `${entry.position}.`}</span>
-                  <span className="flex-1 font-medium">{entry.nickname}{isMe ? " (you)" : ""}</span>
-                  <span className="font-bold">{entry.score} pts</span>
+                  <span className="flex-1 font-medium text-base">{entry.nickname}{isMe ? " (you)" : ""}</span>
+                  <span className="font-bold text-base">{entry.score} pts</span>
                 </div>
               );
             })}
@@ -271,7 +271,7 @@ function JoinGame() {
           )}
 
           {/* Question Text */}
-          <h2 className="text-xl md:text-2xl font-bold leading-tight z-10 mt-auto pb-1 px-4 drop-shadow-md">
+          <h2 className="text-2xl md:text-3xl font-bold leading-tight z-10 mt-auto pb-1 px-4 drop-shadow-md">
             {currentQuestion.text}
             {isMultiple && <span className="block text-violet-400 text-[10px] uppercase tracking-[0.2em] mt-1">Multi-Select</span>}
           </h2>
@@ -289,7 +289,7 @@ function JoinGame() {
                 disabled={submitted || timeLeft === 0}
                 onClick={() => isMultiple ? toggleMultiAnswer(answer.id) : handleSingleAnswer(answer.id)}
                 className={`
-                  relative flex flex-col items-center justify-center p-4 rounded-xl transition-all active:scale-95
+                  relative flex flex-col items-center justify-center p-4 rounded-xl transition-all active:scale-95 touch-manipulation
                   ${colors.base} 
                   ${isSelected ? 'ring-8 ring-white/30 z-10 scale-95 shadow-inner' : 'opacity-100'}
                   ${submitted && !isSelected ? 'opacity-40 grayscale-[0.5]' : ''}
@@ -398,8 +398,8 @@ function JoinGame() {
 
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
-            <h1 className="text-4xl font-black tracking-tight mb-2">Join Game</h1>
-            <p className="text-white/40">Enter a nickname to start playing</p>
+            <h1 className="text-6xl font-black tracking-tight mb-2">Join Game</h1>
+            <p className="text-white/40 text-3xl">Enter a nickname</p>
           </div>
 
           <div className="space-y-4">
@@ -411,7 +411,7 @@ function JoinGame() {
                   onChange={e => setNickname(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleJoin()}
                   maxLength={20}
-                  className="w-full bg-gray-900 border-2 border-white/10 rounded-2xl px-6 py-5 text-xl font-bold text-white placeholder-white/20 focus:outline-none focus:border-violet-500 transition-all text-center"
+                  className="w-full bg-gray-900 border-2 border-white/10 rounded-2xl px-6 py-5 text-3xl font-bold text-white placeholder-white/20 focus:outline-none focus:border-violet-500 transition-all text-center"
                 />
              </div>
 
@@ -424,7 +424,7 @@ function JoinGame() {
             <button
               onClick={handleJoin}
               disabled={!nickname.trim()}
-              className="w-full py-5 rounded-2xl font-black text-xl bg-violet-500 hover:bg-violet-400 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_8px_0_rgb(109,40,217)] active:shadow-none active:translate-y-1"
+              className="w-full py-5 rounded-2xl font-black text-3xl bg-violet-500 hover:bg-violet-400 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_8px_0_rgb(109,40,217)] active:shadow-none active:translate-y-1"
             >
               Ready!
             </button>
