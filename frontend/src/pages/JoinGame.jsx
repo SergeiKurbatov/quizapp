@@ -347,16 +347,16 @@ function JoinGame() {
   // ── WAITING PHASE ─────────────────────────────────────────────────────────
   if (joined) {
     return (
-        <div className="min-h-screen h-screen bg-gray-950 text-white flex flex-col items-center justify-between p-6 overflow-hidden">
+        <div className="fixed inset-0 bg-gray-950 text-white flex flex-col items-center justify-between p-6 overflow-hidden">
         {/* Top Header - Mobile Style */}
-        <div className="w-full flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/10">
+        <div className="w-full flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/10">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-white/40">Playing as</p>
-            <p className="text-4xl font-bold text-violet-400">{nickname}</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Playing as</p>
+            <p className="text-2xl font-bold text-violet-400">{nickname}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm uppercase tracking-[0.2em] text-white/40">Game PIN</p>
-            <p className="text-4xl font-black tracking-tight">{gamePin}</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Game PIN</p>
+            <p className="text-2xl font-black tracking-tight">{gamePin}</p>
           </div>
         </div>
 
@@ -380,7 +380,7 @@ function JoinGame() {
         <div className="w-full">
           <div className="flex items-center justify-center gap-3 bg-white/5 py-4 px-6 rounded-full border border-white/5 animate-pulse">
             <div className="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-            <p className="text-3xl font-medium text-white/60">Waiting for host to start...</p>
+            <p className="text-xl font-medium text-white/60">Waiting for host to start...</p>
           </div>
         </div>
       </div>
@@ -402,7 +402,7 @@ function JoinGame() {
             <p className="text-white/40 text-3xl">Enter a nickname</p>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-4">
              <div className="relative">
                 <input
                   type="text"
