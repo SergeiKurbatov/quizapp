@@ -4,6 +4,7 @@ import { useWebSocket } from "../hooks/useWebSocket";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../services/authService";
+import { QRCodeSVG } from 'qrcode.react';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -15,7 +16,7 @@ function HostLobby() {
   const { gamePin } = useParams();
   const session = state?.session;
   const navigate = useNavigate();
-
+  const [copied, setCopied] = useState(false);
   const [players, setPlayers] = useState([]);
   const [gameStarted, setGameStarted] = useState(false);
   const [phase, setPhase] = useState("waiting"); // waiting | playing | result | finished
@@ -311,7 +312,26 @@ function HostLobby() {
 
       <div className="bg-gray-900 border border-white/10 rounded-3xl p-12 text-center mb-12 w-full max-w-md shadow-2xl">
         <p className="text-white/40 mb-2 uppercase font-semibold">Join at <span className="text-violet-400">{window.location.host}/game/{gamePin}</span></p>
-        <h1 className="text-7xl font-black tracking-tighter text-white">{gamePin}</h1>
+        <h1 className="text-7xl font-black tracking-tighter text-white mb-6">{gamePin}</h1>
+        <div className="flex justify-center mb-6">
+          <div className="bg-white p-3 rounded-2xl">
+            <QRCodeSVG value={`${window.location.origin}/game/${gamePin}`} size={160} />
+          </div>
+        </div>
+        <button
+            onClick={() => {
+              navigator.clipboard.writeText(`${window.location.origin}/game/${gamePin}`);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className={`flex items-center gap-2 mx-auto px-4 py-2 rounded-lg border text-sm font-medium transition ${
+                copied
+                    ? "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
+                    : "border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+        >
+          {copied ? "✓ Link copied!" : "Copy join link"}
+        </button>
       </div>
 
       <div className="w-full max-w-5xl">
