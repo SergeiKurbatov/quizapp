@@ -3,6 +3,7 @@ import { getMyQuizzes, deleteQuiz } from "../services/quizService";
 import { Plus, Play, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../services/quizService";
+import { logout } from "../services/authService";
 
 function Home() {
   const [quizzes, setQuizzes] = useState([]);
@@ -62,12 +63,20 @@ function Home() {
             <h1 className="text-3xl font-bold">My Quizzes</h1>
             <p className="text-white/40">Select a quiz to host or create a new one</p>
           </div>
-          <button
-            className="flex items-center gap-2 bg-violet-500 hover:bg-violet-400 px-6 py-3 rounded-xl font-semibold transition"
-            onClick={() => navigate("/HostCreateGame")}
-          >
-            <Plus size={20} /> Create New Quiz
-          </button>
+          <div className="flex gap-3">
+            <button
+                className="flex items-center gap-2 bg-violet-500 hover:bg-violet-400 px-6 py-3 rounded-xl font-semibold transition"
+                onClick={() => navigate("/HostCreateGame")}
+            >
+              <Plus size={20} /> Create New Quiz
+            </button>
+            <button
+                className="px-6 py-3 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 hover:text-white font-semibold transition"
+                onClick={() => { logout(); navigate("/Login"); }}
+            >
+              Log out
+            </button>
+          </div>
         </div>
 
         {/* Search + Filter */}
