@@ -37,6 +37,15 @@ function JoinGame() {
   // Persistent score across questions
   const [score, setScore] = useState(0);
 
+  // Restore session from localStorage
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("quizSession") || "null");
+    if (saved && saved.gamePin === gamePin) {
+      setNickname(saved.nickname);
+      setJoined(true);
+    }
+  }, [gamePin]);
+
   // Final leaderboard
   const [gameFinished, setGameFinished] = useState(false);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
@@ -51,6 +60,7 @@ function JoinGame() {
   const onKicked = useCallback(() => {
     setKicked(true);
     setJoined(false);
+    localStorage.removeItem("quizSession");
   }, []);
 
   const onQuestion = useCallback((question) => {
@@ -73,6 +83,7 @@ function JoinGame() {
   const onGameEnded = useCallback((data) => {
     setFinalLeaderboard(data.leaderboard || []);
     setGameFinished(true);
+    localStorage.removeItem("quizSession");
   }, []);
 
   useWebSocket({
@@ -90,6 +101,7 @@ function JoinGame() {
       setError("Please enter a nickname!");
       return;
     }
+    localStorage.setItem("quizSession", JSON.stringify({ gamePin, nickname }));
     setJoined(true);
   }
 
