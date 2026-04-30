@@ -308,11 +308,12 @@ function JoinGame() {
           </h2>
         </div>
 
-        {/* 3. Bottom Section: Huge Answer Buttons */}
-        <div className="h-[50%] grid grid-cols-2 grid-rows-2 gap-2 p-2 pb-6">
-          {currentQuestion.answers.map((answer, i) => {
-            const colors = ANSWER_COLORS[i % 4];
-            const isSelected = isMultiple ? selectedAnswers.has(answer.id) : selectedAnswer === answer.id;
+        {/* 3. Bottom Section: Answer Buttons + Submit (when multi-select) */}
+        <div className="h-[50%] flex flex-col p-2 gap-2">
+          <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-2">
+            {currentQuestion.answers.map((answer, i) => {
+              const colors = ANSWER_COLORS[i % 4];
+              const isSelected = isMultiple ? selectedAnswers.has(answer.id) : selectedAnswer === answer.id;
 
             return (
               <button
@@ -346,20 +347,19 @@ function JoinGame() {
                 )}
               </button>
             );
-          })}
-        </div>
-
-        {/* 4. Submission Button for Multi-Select */}
-        {isMultiple && !submitted && selectedAnswers.size > 0 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] z-20">
-            <button
-              onClick={handleMultiSubmit}
-              className="w-full py-4 bg-white text-black font-black rounded-2xl shadow-2xl animate-bounce"
-            >
-              SUBMIT {selectedAnswers.size}
-            </button>
+            })}
           </div>
-        )}
+
+          {/* 4. Submit Button for Multi-Select — takes real space, doesn't cover answers */}
+          {isMultiple && !submitted && selectedAnswers.size > 0 && (
+              <button
+                  onClick={handleMultiSubmit}
+                  className="shrink-0 w-full py-4 bg-white text-black font-black rounded-2xl shadow-2xl animate-bounce text-lg"
+              >
+                SUBMIT {selectedAnswers.size}
+              </button>
+          )}
+        </div>
 
         {/* 5. "Answer Received" Waiting Overlay */}
         {submitted && !questionResult && (

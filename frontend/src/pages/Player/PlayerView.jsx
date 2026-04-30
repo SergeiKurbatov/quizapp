@@ -130,7 +130,7 @@ export default function PlayerView() {
         </div>
 
         {/* SUBMIT / LOCKED STATE */}
-        <div className="mt-6">
+        <div className="mt-8 pb-4">
           {submitted ? (
             <div className="w-full py-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 font-semibold text-center">
               Answer submitted — waiting for results...
