@@ -42,9 +42,28 @@ function JoinGame() {
     const saved = JSON.parse(localStorage.getItem("quizSession") || "null");
     if (saved && saved.gamePin === gamePin) {
       setNickname(saved.nickname);
+      setScore(saved.score || 0);
       setJoined(true);
+      if (saved.currentQuestion) setCurrentQuestion(saved.currentQuestion);
+      if (saved.submitted) setSubmitted(saved.submitted);
+      if (saved.submitResult) setSubmitResult(saved.submitResult);
+      if (saved.questionResult) setQuestionResult(saved.questionResult);
     }
   }, [gamePin]);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("quizSession") || "null");
+    if (saved && saved.gamePin === gamePin) {
+      localStorage.setItem("quizSession", JSON.stringify({
+        ...saved,
+        score,
+        currentQuestion,
+        submitted,
+        submitResult,
+        questionResult,
+      }));
+    }
+  }, [score, currentQuestion, submitted, submitResult, questionResult, gamePin]);
 
   // Final leaderboard
   const [gameFinished, setGameFinished] = useState(false);
@@ -101,7 +120,7 @@ function JoinGame() {
       setError("Please enter a nickname!");
       return;
     }
-    localStorage.setItem("quizSession", JSON.stringify({ gamePin, nickname }));
+    localStorage.setItem("quizSession", JSON.stringify({ gamePin, nickname, score: 0 }));
     setJoined(true);
   }
 
