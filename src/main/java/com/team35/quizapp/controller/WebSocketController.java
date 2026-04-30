@@ -1,6 +1,7 @@
 package com.team35.quizapp.controller;
 
 import com.team35.quizapp.config.WebSocketSessionCache;
+import com.team35.quizapp.config.JoinRateLimiter;
 import com.team35.quizapp.dto.websocket.*;
 import com.team35.quizapp.entity.GameSession;
 import com.team35.quizapp.entity.Player;
@@ -29,6 +30,7 @@ public class WebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final WebSocketSessionCache sessionCache;
+    private final JoinRateLimiter joinRateLimiter;
     private final GameSessionRepository gameSessionRepository;
     private final PlayerRepository playerRepository;
     private final PlayerAnswerRepository playerAnswerRepository;
@@ -39,6 +41,15 @@ public class WebSocketController {
         String wsSessionId = headerAccessor.getSessionId();
         Integer gamePin = message.gamePin();
         String nickname = message.nickname();
+
+        String ip = (String) headerAccessor.getSessionAttributes().getOrDefault("ip", "unknown");
+        if (!joinRateLimiter.isAllowed(ip)) {
+            log.warn("Rate limit exceeded for IP: {}", ip);
+            messagingTemplate.convertAndSendToUser(
+                    wsSessionId, "/queue/error", "Too many join attempts. Please wait."
+            );
+            return;
+        }
 
         playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
                 .ifPresent(p -> {
