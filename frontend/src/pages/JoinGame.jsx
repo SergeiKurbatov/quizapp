@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Volume2, VolumeX } from "lucide-react";
 import { useWebSocket } from "../hooks/useWebSocket";
+import { useGameMusic } from "../hooks/useGameMusic";
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -68,6 +70,19 @@ function JoinGame() {
   // Final leaderboard
   const [gameFinished, setGameFinished] = useState(false);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
+
+  const phase = !joined ? null
+    : gameFinished     ? "finished"
+    : questionResult   ? "result"
+    : currentQuestion  ? "playing"
+    :                    "waiting";
+  const audioEnabled = currentQuestion?.audioEnabled ?? true;
+  const { muted, toggleMute } = useGameMusic(phase, audioEnabled);
+  const muteButton = (
+    <button onClick={toggleMute} title={muted ? "Unmute" : "Mute"} className="text-white/60 hover:text-white transition">
+      {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+    </button>
+  );
 
   // Countdown
   useEffect(() => {
@@ -283,9 +298,12 @@ function JoinGame() {
             <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
               {currentQuestion.questionIndex + 1} / {currentQuestion.totalQuestions}
             </span>
-            <span className="text-violet-400 font-bold tabular-nums text-sm">
-              {score} pts
-            </span>
+            <div className="flex items-center gap-3">
+              {muteButton}
+              <span className="text-violet-400 font-bold tabular-nums text-sm">
+                {score} pts
+              </span>
+            </div>
           </div>
 
           {/* Hero Image Container */}
@@ -385,9 +403,12 @@ function JoinGame() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Playing as</p>
             <p className="text-2xl font-bold text-violet-400">{nickname}</p>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Game PIN</p>
-            <p className="text-2xl font-black tracking-tight">{gamePin}</p>
+          <div className="flex items-center gap-3">
+            {muteButton}
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">Game PIN</p>
+              <p className="text-2xl font-black tracking-tight">{gamePin}</p>
+            </div>
           </div>
         </div>
 

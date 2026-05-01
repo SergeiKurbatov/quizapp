@@ -7,6 +7,7 @@ public record QuizResponse(
     Long id,
     String title,
     String theme,
+    Boolean audioEnabled,
     LocalDateTime createdAt,
     List<QuestionResponse> questions
 ) {}

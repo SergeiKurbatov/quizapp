@@ -1,6 +1,7 @@
-import { Users, Play, ChevronRight, Clock, CheckCircle, XCircle, Trophy } from "lucide-react";
+import { Users, Play, ChevronRight, Clock, CheckCircle, XCircle, Trophy, Volume2, VolumeX } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useWebSocket } from "../hooks/useWebSocket";
+import { useGameMusic } from "../hooks/useGameMusic";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../services/authService";
@@ -26,6 +27,13 @@ function HostLobby() {
   const [questionResult, setQuestionResult] = useState(null);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
   const questionEndedRef = useRef(false);
+  const audioEnabled = currentQuestion?.audioEnabled ?? session?.audioEnabled ?? true;
+  const { muted, toggleMute } = useGameMusic(phase, audioEnabled);
+  const muteButton = (
+    <button onClick={toggleMute} title={muted ? "Unmute" : "Mute"} className="text-white/60 hover:text-white transition">
+      {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+    </button>
+  );
 
   useEffect(() => {
     if (timeLeft === null || timeLeft === 0) return;
@@ -187,9 +195,12 @@ function HostLobby() {
               <p className="text-white/40 text-sm uppercase tracking-widest">{session.quizTitle}</p>
               <p className="text-white/60 text-sm">Question {currentQuestion.questionIndex + 1} of {currentQuestion.totalQuestions}</p>
             </div>
-            <button onClick={handleEndGame} className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition">
-              <XCircle size={16} /> End Quiz
-            </button>
+            <div className="flex items-center gap-4">
+              {muteButton}
+              <button onClick={handleEndGame} className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition">
+                <XCircle size={16} /> End Quiz
+              </button>
+            </div>
           </div>
 
           <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 mb-6">
@@ -250,6 +261,7 @@ function HostLobby() {
             </div>
             <div className="flex items-center gap-4">
               <span className={`text-4xl font-black tabular-nums ${timerColor}`}>{timeLeft}s</span>
+              {muteButton}
               <button onClick={handleEndGame} className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition">
                 <XCircle size={16} /> End Quiz
               </button>
@@ -304,6 +316,7 @@ function HostLobby() {
           <button onClick={handleStart} disabled={gameStarted} className="bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition transform hover:scale-105">
             <Play fill="currentColor" /> {gameStarted ? "Game In Progress" : "Start Game"}
           </button>
+          {muteButton}
           <button onClick={handleEndGame} className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 transition">
             <XCircle size={16} /> End Quiz
           </button>

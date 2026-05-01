@@ -22,6 +22,10 @@ public class Quiz {
     private String theme;
     private String version;
 
+    @Column(name = "audio_enabled", nullable = false)
+    @Builder.Default
+    private Boolean audioEnabled = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     @JsonIgnore

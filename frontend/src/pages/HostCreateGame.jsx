@@ -11,6 +11,7 @@ function HostCreateGame() {
 
   const [title, setTitle] = useState(existingQuiz?.title || "");
   const [theme, setTheme] = useState(existingQuiz?.theme || "");
+  const [audioEnabled, setAudioEnabled] = useState(existingQuiz?.audioEnabled !== false);
   const [questions, setQuestions] = useState(existingQuiz?.questions || []);
   const [questionText, setQuestionText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -25,6 +26,7 @@ function HostCreateGame() {
   const initialStateRef = useRef({
     title: existingQuiz?.title || "",
     theme: existingQuiz?.theme || "",
+    audioEnabled: existingQuiz?.audioEnabled !== false,
     questions: JSON.stringify(existingQuiz?.questions || []),
   });
 
@@ -34,9 +36,10 @@ function HostCreateGame() {
     const changed =
       title !== initialStateRef.current.title ||
       theme !== initialStateRef.current.theme ||
+      audioEnabled !== initialStateRef.current.audioEnabled ||
       JSON.stringify(questions) !== initialStateRef.current.questions;
     setIsModified(changed);
-  }, [title, theme, questions, isEditing]);
+  }, [title, theme, audioEnabled, questions, isEditing]);
 
   function toggleCorrect(index) {
     if (questionType === "truefalse") {
@@ -95,7 +98,7 @@ function HostCreateGame() {
 
   // Save as new quiz (always creates a new one)
   async function saveDraft() {
-    const quiz = { title, theme, questions };
+    const quiz = { title, theme, audioEnabled, questions };
     try {
       await createQuiz(quiz);
       setSaveStatus("draft");
@@ -111,7 +114,7 @@ function HostCreateGame() {
     try {
       let quizId = existingQuiz?.id;
       if (!quizId || isModified) {
-        const quiz = { title, theme, questions };
+        const quiz = { title, theme, audioEnabled, questions };
         const response = quizId
           ? await updateQuiz(quizId, quiz)
           : await createQuiz(quiz);
@@ -127,7 +130,7 @@ function HostCreateGame() {
 
   // Save changes to existing quiz
   async function saveChanges() {
-    const quiz = { title, theme, questions };
+    const quiz = { title, theme, audioEnabled, questions };
     try {
       await updateQuiz(existingQuiz.id, quiz);
       setSaveStatus("saved");
@@ -136,6 +139,7 @@ function HostCreateGame() {
       initialStateRef.current = {
         title,
         theme,
+        audioEnabled,
         questions: JSON.stringify(questions),
       };
       setTimeout(() => setSaveStatus(null), 3000);
@@ -174,6 +178,7 @@ function HostCreateGame() {
           <button onClick={() => {
             setTitle("");
             setTheme("");
+            setAudioEnabled(true);
             setQuestions([]);
             setQuestionText("");
             setImageUrl("");
@@ -183,7 +188,7 @@ function HostCreateGame() {
             setActiveQuestion(null);
             setQuestionType("multiple");
             setIsModified(false);
-            initialStateRef.current = { title: "", theme: "", questions: "[]" };
+            initialStateRef.current = { title: "", theme: "", audioEnabled: true, questions: "[]" };
             navigate("/HostCreateGame", { state: null });
           }} className="ml-4 text-sm text-white/50 hover:text-white transition">
             + New Quiz
@@ -247,6 +252,19 @@ function HostCreateGame() {
                 onChange={(e) => setTheme(e.target.value)}
               />
             </div>
+            <label className="flex items-center justify-between cursor-pointer select-none px-1 py-1">
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Background Music</span>
+              <span className="relative inline-block">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={audioEnabled}
+                  onChange={(e) => setAudioEnabled(e.target.checked)}
+                />
+                <span className="block w-9 h-5 bg-white/10 peer-checked:bg-violet-500 rounded-full transition" />
+                <span className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-4" />
+              </span>
+            </label>
             {/* Editing indicator */}
             {isEditing && (
               <div className={`text-xs px-2 py-1 rounded-md ${isModified ? "bg-amber-500/20 text-amber-400" : "bg-white/5 text-white/30"}`}>

@@ -111,6 +111,7 @@ public class WebSocketController {
                 .map(a -> new QuestionMessage.AnswerOption(a.getId(), a.getText()))
                 .toList();
 
+        Boolean audioEnabled = session.getQuiz().getAudioEnabled();
         QuestionMessage questionMessage = new QuestionMessage(
                 currentSq.getQuestion().getId(),
                 currentSq.getQuestion().getText(),
@@ -119,6 +120,7 @@ public class WebSocketController {
                 session.getCurrentQuestionIndex(),
                 session.getSessionQuestions().size(),
                 correctCount > 1,
+                audioEnabled == null || audioEnabled,
                 answerOptions
         );
 
