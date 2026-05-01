@@ -26,29 +26,34 @@ function Home() {
     fetchQuizzes();
   }, []);
 
-  const themes = [...new Set(quizzes.map(q => q.theme?.toLowerCase()).filter(Boolean))];
+  const themes = [
+    ...new Set(quizzes.map((q) => q.theme?.toLowerCase()).filter(Boolean)),
+  ];
 
-  const filtered = quizzes.filter(q => {
+  const filtered = quizzes.filter((q) => {
     const matchesName = q.title.toLowerCase().includes(search.toLowerCase());
-    const matchesTheme = themeFilter === "" || q.theme?.toLowerCase() === themeFilter;
+    const matchesTheme =
+      themeFilter === "" || q.theme?.toLowerCase() === themeFilter;
     return matchesName && matchesTheme;
   });
 
   async function handleHost(quizId) {
-  try {
-    const sessionData = await createSession(quizId);
-    console.log("Session created:", sessionData);
-    navigate(`/HostLobby/${sessionData.gamePin}`, { state: { session: sessionData } });
-  } catch (err) {
-    console.error("Failed to start session", err);
-    alert("Could not start game session.");
+    try {
+      const sessionData = await createSession(quizId);
+      console.log("Session created:", sessionData);
+      navigate(`/HostLobby/${sessionData.gamePin}`, {
+        state: { session: sessionData },
+      });
+    } catch (err) {
+      console.error("Failed to start session", err);
+      alert("Could not start game session.");
+    }
   }
-}
 
   function handleDelete(quizId) {
     if (window.confirm("Delete this quiz?")) {
       deleteQuiz(quizId)
-        .then(() => setQuizzes(quizzes.filter(q => q.id !== quizId)))
+        .then(() => setQuizzes(quizzes.filter((q) => q.id !== quizId)))
         .catch(() => alert("Failed to delete quiz."));
     }
   }
@@ -56,23 +61,27 @@ function Home() {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-6xl mx-auto">
-
         {/* Header */}
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-bold">My Quizzes</h1>
-            <p className="text-white/40">Select a quiz to host or create a new one</p>
+            <p className="text-white/40">
+              Select a quiz to host or create a new one
+            </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 w-full md:w-auto">
             <button
-                className="flex items-center gap-2 bg-violet-500 hover:bg-violet-400 px-6 py-3 rounded-xl font-semibold transition"
-                onClick={() => navigate("/HostCreateGame")}
+              className="w-1/2 md:w-auto flex items-center justify-center gap-2 bg-violet-500 hover:bg-violet-400 px-6 py-3 rounded-xl font-semibold transition"
+              onClick={() => navigate("/HostCreateGame")}
             >
               <Plus size={20} /> Create New Quiz
             </button>
             <button
-                className="px-6 py-3 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 hover:text-white font-semibold transition"
-                onClick={() => { logout(); navigate("/Login"); }}
+              className="w-1/2 md:w-auto px-6 py-3 rounded-xl border border-white/20 text-white/70 hover:bg-white/10 hover:text-white font-semibold transition"
+              onClick={() => {
+                logout();
+                navigate("/Login");
+              }}
             >
               Log out
             </button>
@@ -85,24 +94,28 @@ function Home() {
             type="text"
             placeholder="Search by name..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
           />
           <select
             value={themeFilter}
-            onChange={e => setThemeFilter(e.target.value)}
+            onChange={(e) => setThemeFilter(e.target.value)}
             className="bg-gray-900 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition"
           >
             <option value="">All Themes</option>
-            {themes.map(theme => (
-              <option key={theme} value={theme}>{theme}</option>
+            {themes.map((theme) => (
+              <option key={theme} value={theme}>
+                {theme}
+              </option>
             ))}
           </select>
         </div>
 
         {/* States */}
         {loading ? (
-          <div className="text-center py-20 text-white/20">Loading your quizzes...</div>
+          <div className="text-center py-20 text-white/20">
+            Loading your quizzes...
+          </div>
         ) : filtered.length === 0 ? (
           <div className="border-2 border-dashed border-white/5 rounded-3xl py-20 text-center">
             <p className="text-white/30 mb-4">No quizzes found.</p>
@@ -132,11 +145,16 @@ function Home() {
 
                 {/* Meta info */}
                 <div className="flex gap-4 text-white/30 text-xs mb-6">
-                  <span>{quiz.questions?.length ?? 0} question{quiz.questions?.length !== 1 ? "s" : ""}</span>
+                  <span>
+                    {quiz.questions?.length ?? 0} question
+                    {quiz.questions?.length !== 1 ? "s" : ""}
+                  </span>
                   <span>
                     {quiz.createdAt
                       ? new Date(quiz.createdAt).toLocaleDateString("en-GB", {
-                          day: "numeric", month: "short", year: "numeric"
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
                         })
                       : "—"}
                   </span>
@@ -146,7 +164,9 @@ function Home() {
                 <div className="flex gap-3">
                   <button
                     className="flex-grow flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 py-2 rounded-lg text-sm font-medium transition"
-                    onClick={() => navigate("/HostCreateGame", { state: { quiz } })}
+                    onClick={() =>
+                      navigate("/HostCreateGame", { state: { quiz } })
+                    }
                   >
                     <Edit3 size={16} /> Edit
                   </button>
