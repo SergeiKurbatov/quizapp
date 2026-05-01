@@ -307,15 +307,15 @@ function HostCreateGame() {
                     className="ml-auto text-white/20 hover:text-red-400 transition text-xs"
                   >✕</button>
                 </div>
-                <div className="flex items-center gap-2 mt-2 ml-7">
-                  <div className="flex gap-1">
+                <div className="flex items-center gap-x-2 gap-y-1 mt-2 ml-7 flex-wrap">
+                  <div className="flex flex-wrap gap-1">
                     {q.answers.map((a, j) => (
-                      <span key={j} className={`text-xs px-1.5 py-0.5 rounded font-medium ${a.isCorrect ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-white/30"}`}>
+                        <span key={j} className={`text-xs px-1.5 py-0.5 rounded font-medium ${a.isCorrect ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-white/30"}`}>
                         {answerLabels[j]}
                       </span>
                     ))}
                   </div>
-                  <span className="text-xs text-white/30">⏱ {q.timeLimit}s</span>
+                  <span className="text-xs text-white/30 shrink-0">⏱ {q.timeLimit}s</span>
                 </div>
               </div>
             ))}
