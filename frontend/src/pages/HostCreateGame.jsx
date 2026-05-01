@@ -64,6 +64,17 @@ function HostCreateGame() {
     }
   }
 
+  // Reset all question fields to start a fresh question — keeps timeLimit
+  function clearQuestionFields() {
+    setActiveQuestion(null);
+    setQuestionText("");
+    setImageUrl("");
+    setAnswers(["", "", "", ""]);
+    setCorrect([]);
+    setQuestionType("multiple");
+    // timeLimit preserved — likely the same across questions in a quiz
+  }
+
   function addQuestion() {
     const formattedAnswers = answers.map((answer, index) => ({
       text: answer,
@@ -286,12 +297,19 @@ function HostCreateGame() {
               <div
                 key={i}
                 onClick={() => {
-                  const q = questions[i];
-                  setActiveQuestion(activeQuestion === i ? null : i);
-                  setQuestionText(q.text);
-                  setTimeLimit(q.timeLimit || 30);
-                  setAnswers(q.answers.map((a) => a.text));
-                  setCorrect(q.answers.map((a, idx) => (a.isCorrect ? idx : null)).filter((idx) => idx !== null));
+                  if (activeQuestion === i) {
+                    // Clicking the active question again = deselect → fresh question
+                    clearQuestionFields();
+                  } else {
+                    const q = questions[i];
+                    setActiveQuestion(i);
+                    setQuestionText(q.text);
+                    setImageUrl(q.imageUrl || "");
+                    setTimeLimit(q.timeLimit || 30);
+                    setQuestionType(q.questionType || "multiple");
+                    setAnswers(q.answers.map((a) => a.text));
+                    setCorrect(q.answers.map((a, idx) => (a.isCorrect ? idx : null)).filter((idx) => idx !== null));
+                  }
                 }}
                 className={`p-3 rounded-lg cursor-pointer border transition-all duration-150 ${
                   activeQuestion === i
@@ -325,9 +343,19 @@ function HostCreateGame() {
         {/* Main editor */}
         <div className="flex-1 overflow-y-auto p-8">
           <div className="max-w-2xl mx-auto">
-            <div className="mb-4">
-              <h1 className="text-2xl font-bold text-white">{activeQuestion !== null ? "Edit Question" : "Add a Question"}</h1>
-              <p className="text-white/40 text-sm mt-1">Click an answer to mark it as correct</p>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h1 className="text-2xl font-bold text-white">{activeQuestion !== null ? "Edit Question" : "Add a Question"}</h1>
+                <p className="text-white/40 text-sm mt-1">Click an answer to mark it as correct</p>
+              </div>
+              {activeQuestion !== null && (
+                  <button
+                      onClick={clearQuestionFields}
+                      className="px-5 py-3 text-base font-medium rounded-lg border border-white/20 text-white/60 hover:bg-white/10 hover:text-white transition shrink-0"
+                  >
+                    + New Question
+                  </button>
+              )}
             </div>
 
             {/* Question type */}
