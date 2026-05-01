@@ -5,12 +5,46 @@ import { useWebSocket } from "../hooks/useWebSocket";
 
 const API_URL = process.env.REACT_APP_API_URL
 
+// 10 distinct colors — supports up to 10 answers per question
 const ANSWER_COLORS = [
-  { base: "bg-red-500",    hover: "hover:bg-red-400",    ring: "ring-red-300",    check: "bg-red-600" },
-  { base: "bg-blue-500",   hover: "hover:bg-blue-400",   ring: "ring-blue-300",   check: "bg-blue-600" },
-  { base: "bg-yellow-500", hover: "hover:bg-yellow-400", ring: "ring-yellow-300", check: "bg-yellow-600" },
-  { base: "bg-green-500",  hover: "hover:bg-green-400",  ring: "ring-green-300",  check: "bg-green-600" },
+  { base: "bg-red-500" },
+  { base: "bg-blue-500" },
+  { base: "bg-yellow-500" },
+  { base: "bg-green-500" },
+  { base: "bg-purple-500" },
+  { base: "bg-pink-500" },
+  { base: "bg-orange-500" },
+  { base: "bg-cyan-500" },
+  { base: "bg-lime-500" },
+  { base: "bg-indigo-500" },
 ];
+
+// One unique shape per answer slot, all 24x24, white outlined
+function AnswerShape({ index }) {
+  const p = { className: "w-6 h-6", viewBox: "0 0 24 24", fill: "none", stroke: "white", strokeWidth: 2.5, strokeLinejoin: "round", strokeLinecap: "round" };
+  switch (index % 10) {
+    case 0: return <svg {...p}><polygon points="12,2 22,12 12,22 2,12" /></svg>;       // diamond
+    case 1: return <svg {...p}><circle cx="12" cy="12" r="10" /></svg>;                 // circle
+    case 2: return <svg {...p}><polygon points="12,3 22,21 2,21" /></svg>;              // triangle
+    case 3: return <svg {...p}><rect x="3" y="3" width="18" height="18" /></svg>;       // square
+    case 4: return <svg {...p}><polygon points="12,2 15,9 22,9 17,14 19,22 12,17 5,22 7,14 2,9 9,9" /></svg>; // star
+    case 5: return <svg {...p}><path d="M12 21s-7-5-7-11a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 6-7 11-7 11z" /></svg>; // heart
+    case 6: return <svg {...p}><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" /></svg>; // hexagon
+    case 7: return <svg {...p}><polygon points="12,2 22,10 18,22 6,22 2,10" /></svg>;   // pentagon
+    case 8: return <svg {...p}><path d="M12 4v16M4 12h16" /></svg>;                     // plus
+    case 9: return <svg {...p}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>; // moon
+    default: return null;
+  }
+}
+
+// Make grid rows match answer count → all answer boxes get equal height
+function answerRowsClass(n) {
+  if (n <= 2) return "grid-rows-1";
+  if (n <= 4) return "grid-rows-2";
+  if (n <= 6) return "grid-rows-3";
+  if (n <= 8) return "grid-rows-4";
+  return "grid-rows-5"; // 9–10
+}
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -310,7 +344,7 @@ function JoinGame() {
 
         {/* 3. Bottom Section: Answer Buttons + Submit (when multi-select) */}
         <div className="h-[50%] flex flex-col p-2 gap-2">
-          <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-2">
+          <div className={`flex-1 min-h-0 grid grid-cols-2 ${answerRowsClass(currentQuestion.answers.length)} gap-2`}>
             {currentQuestion.answers.map((answer, i) => {
               const colors = ANSWER_COLORS[i % 4];
               const isSelected = isMultiple ? selectedAnswers.has(answer.id) : selectedAnswer === answer.id;
@@ -328,15 +362,12 @@ function JoinGame() {
                   disabled:cursor-not-allowed
                 `}
               >
-                {/* Kahoot-style icons */}
-                <div className="absolute top-3 left-3 opacity-30">
-                  {i === 0 && <div className="w-6 h-6 border-4 border-white rotate-45" />}
-                  {i === 1 && <div className="w-6 h-6 border-4 border-white rounded-full" />}
-                  {i === 2 && <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-white" />}
-                  {i === 3 && <div className="w-6 h-6 border-4 border-white" />}
+                {/* Unique shape per answer slot */}
+                <div className="absolute top-3 left-3 opacity-40">
+                  <AnswerShape index={i} />
                 </div>
 
-                <span className="text-xl font-black text-center drop-shadow-md">
+                <span className="text-base sm:text-lg font-bold text-center leading-tight px-2 break-words drop-shadow-md">
                   {answer.text}
                 </span>
 
