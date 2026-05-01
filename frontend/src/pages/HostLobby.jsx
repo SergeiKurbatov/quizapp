@@ -9,7 +9,11 @@ import { QRCodeSVG } from 'qrcode.react';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const ANSWER_COLORS = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500"];
+const ANSWER_COLORS = [
+  "bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500",
+  "bg-purple-500", "bg-pink-500", "bg-orange-500", "bg-cyan-500",
+  "bg-lime-500", "bg-indigo-500",
+];
 const MEDAL = ["🥇", "🥈", "🥉"];
 
 function HostLobby() {
@@ -210,7 +214,7 @@ function HostLobby() {
               {currentQuestion.answers.map((answer, i) => {
                 const isCorrect = questionResult.correctAnswerIds.includes(answer.id);
                 return (
-                  <div key={answer.id} className={`${ANSWER_COLORS[i % 4]} ${isCorrect ? "ring-4 ring-white" : "opacity-40"} rounded-xl px-4 py-4 font-semibold flex items-center gap-2 transition-all`}>
+                    <div key={answer.id} className={`${ANSWER_COLORS[i % 10]} ${isCorrect ? "ring-4 ring-white" : "opacity-40"} rounded-xl px-4 py-4 font-semibold flex items-center gap-2 transition-all`}>
                     {isCorrect && <CheckCircle size={18} />}
                     {answer.text}
                   </div>
@@ -276,9 +280,9 @@ function HostLobby() {
             <h2 className="text-2xl font-semibold mb-6">{currentQuestion.text}</h2>
             <div className="grid grid-cols-2 gap-3">
               {currentQuestion.answers.map((answer, i) => (
-                <div key={answer.id} className={`${ANSWER_COLORS[i % 4]} opacity-80 rounded-xl px-4 py-4 font-semibold`}>
-                  {answer.text}
-                </div>
+                  <div key={answer.id} className={`${ANSWER_COLORS[i % 10]} opacity-80 rounded-xl px-4 py-4 font-semibold`}>
+                    {answer.text}
+                  </div>
               ))}
             </div>
           </div>
