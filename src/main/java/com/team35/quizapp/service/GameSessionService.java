@@ -202,6 +202,7 @@ public class GameSessionService {
                 session.getGamePin(),
                 session.getQuiz().getId(),
                 session.getQuiz().getTitle(),
+                session.getQuiz().getAudioEnabled(),
                 session.getStatus().name(),
                 session.getCurrentQuestionIndex(),
                 questionDtos

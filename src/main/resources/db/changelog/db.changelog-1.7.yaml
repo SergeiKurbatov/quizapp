@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.7-add-audio-enabled-to-quiz
+      author: team35
+      changes:
+        - addColumn:
+            tableName: quiz
+            columns:
+              - column:
+                  name: audio_enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false

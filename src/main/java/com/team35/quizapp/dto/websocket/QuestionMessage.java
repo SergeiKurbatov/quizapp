@@ -4,12 +4,13 @@ import java.util.List;
 
 public record QuestionMessage(
         Long questionId,
-        String text,       
+        String text,
         String imageUrl,
         Integer timeLimit,
         Integer questionIndex,
         Integer totalQuestions,
         boolean multipleCorrect,
+        boolean audioEnabled,
         List<AnswerOption> answers
 ) {
     public record AnswerOption(Long id, String text) {}

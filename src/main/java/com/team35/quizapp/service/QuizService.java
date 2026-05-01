@@ -41,6 +41,7 @@ public class QuizService {
         Quiz quiz = Quiz.builder()
                 .title(request.title())
                 .theme(request.theme())
+                .audioEnabled(request.audioEnabled() == null ? Boolean.TRUE : request.audioEnabled())
                 .creator(currentUser)
                 .questions(questions)
                 .build();
@@ -65,6 +66,7 @@ public class QuizService {
         // Update basic fields
         quiz.setTitle(request.title());
         quiz.setTheme(request.theme());
+        if (request.audioEnabled() != null) quiz.setAudioEnabled(request.audioEnabled());
 
         // Replace all questions — orphanRemoval on Quiz.questions handles deletion
         quiz.getQuestions().clear();
@@ -128,6 +130,7 @@ public class QuizService {
                 quiz.getId(),
                 quiz.getTitle(),
                 quiz.getTheme(),
+                quiz.getAudioEnabled(),
                 quiz.getCreatedAt(),
                 questionResponses
         );

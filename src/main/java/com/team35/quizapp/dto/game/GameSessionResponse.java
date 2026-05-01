@@ -15,6 +15,7 @@ public record GameSessionResponse(
         Integer gamePin,            // 6-digit PIN players use to join
         Long quizId,
         String quizTitle,
+        Boolean audioEnabled,       // whether host should play background music
         String status,              // "WAITING" when first created
         Integer currentQuestionIndex,
         List<QuestionDto> questions // ordered list of questions (without correct answers)
