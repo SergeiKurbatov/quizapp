@@ -86,6 +86,14 @@ public class WebSocketController {
                 .map(Player::getNickname)
                 .collect(Collectors.toSet());
         messagingTemplate.convertAndSend("/topic/game/" + gamePin + "/players", new PlayerListMessage(nicknames));
+        broadcastPlayerStatus(gamePin);
+    }
+
+    public void broadcastPlayerStatus(Integer gamePin) {
+        messagingTemplate.convertAndSend(
+                "/topic/game/" + gamePin + "/player-status",
+                new PlayerStatusMessage(sessionCache.getConnectionStatus(gamePin))
+        );
     }
 
     public void broadcastKick(Integer gamePin, String nickname) {

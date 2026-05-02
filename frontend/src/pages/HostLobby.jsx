@@ -31,6 +31,7 @@ function HostLobby() {
   const [questionResult, setQuestionResult] = useState(null);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
   const questionEndedRef = useRef(false);
+  const [playerStatus, setPlayerStatus] = useState({}); // nickname → boolean
   const audioEnabled = currentQuestion?.audioEnabled ?? session?.audioEnabled ?? true;
   const { muted, toggleMute } = useGameMusic(phase, audioEnabled);
   const muteButton = (
@@ -89,6 +90,10 @@ function HostLobby() {
     setPhase("finished");
   }, []);
 
+  const onPlayerStatus = useCallback((status) => {
+    setPlayerStatus(status || {});
+  }, []);
+
   useWebSocket({
     gamePin: gamePin ? parseInt(gamePin) : null,
     nickname: null,
@@ -97,6 +102,7 @@ function HostLobby() {
     onQuestionResult,
     onAnswerCount,
     onGameEnded,
+    onPlayerStatus,
   });
 
   async function handleKick(nickname) {
@@ -145,7 +151,45 @@ function HostLobby() {
     }
   }
 
-  if (!session) return <div className="text-white">Loading session...</div>;
+  // ── PLAYER STATUS SIDEBAR ─────────────────────────────────────────────────
+  const PlayerStatusPanel = () => {
+    const entries = Object.entries(playerStatus);
+    if (entries.length === 0) return null;
+    const connected = entries.filter(([, v]) => v).length;
+    return (
+        <div className="
+        w-full md:w-56 md:shrink-0
+        bg-gray-900/60 border border-white/10 rounded-2xl p-4
+        md:self-start md:sticky md:top-4
+        flex flex-col
+        h-48 md:h-auto md:max-h-[80vh]
+        overflow-hidden
+      ">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40">Players</p>
+            <span className="text-xs text-white/40">{connected}/{entries.length}</span>
+          </div>
+          {/* Fade container */}
+          <div className="relative flex-1 min-h-0">
+            <div className="overflow-y-auto h-full space-y-1.5 pr-1">
+              {entries
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([nickname, isConnected]) => (
+                      <div key={nickname} className="flex items-center gap-2 py-1">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${isConnected ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" : "bg-red-500/60"}`} />
+                        <span className={`text-sm truncate ${isConnected ? "text-white/80" : "text-white/30"}`}>
+                    {nickname}
+                  </span>
+                      </div>
+                  ))}
+            </div>
+            {/* Fade overlay at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none rounded-b-xl" />
+          </div>
+        </div>
+    );
+  };
+
 
   // ── FINISHED PHASE ────────────────────────────────────────────────────────
   if (phase === "finished") {
@@ -192,8 +236,8 @@ function HostLobby() {
   // ── RESULT PHASE ──────────────────────────────────────────────────────────
   if (phase === "result" && questionResult) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-8">
-        <div className="w-full max-w-3xl">
+        <div className="min-h-screen bg-gray-950 text-white flex flex-col md:flex-row justify-center gap-4 p-8 md:items-start">
+          <div className="w-full max-w-3xl">
           <div className="flex justify-between items-center mb-6">
             <div>
               <p className="text-white/40 text-sm uppercase tracking-widest">{session.quizTitle}</p>
@@ -245,10 +289,13 @@ function HostLobby() {
               <Trophy size={18} /> Show Final Results
             </button>
           )}
+          </div>
+          <PlayerStatusPanel />
         </div>
-      </div>
     );
   }
+
+  // ── PLAYING PHASE
 
   // ── PLAYING PHASE ─────────────────────────────────────────────────────────
   if (phase === "playing" && currentQuestion) {
@@ -256,8 +303,8 @@ function HostLobby() {
     const timerColor = timeLeft <= 5 ? "text-red-400" : "text-white";
 
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-8">
-        <div className="w-full max-w-3xl">
+        <div className="min-h-screen bg-gray-950 text-white flex flex-col md:flex-row justify-center gap-4 p-8 md:items-start">
+          <div className="w-full max-w-3xl">
           <div className="flex justify-between items-center mb-4">
             <div>
               <p className="text-white/40 text-sm uppercase tracking-widest">{session.quizTitle}</p>
@@ -314,11 +361,12 @@ function HostLobby() {
             </div>
           </div>
 
-          <button onClick={handleEndQuestion} disabled={questionEndedRef.current} className="w-full py-4 rounded-xl font-bold bg-orange-500 hover:bg-orange-400 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2">
-            <Clock size={18} /> End Question
-          </button>
+            <button onClick={handleEndQuestion} disabled={questionEndedRef.current} className="w-full py-4 rounded-xl font-bold bg-orange-500 hover:bg-orange-400 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2">
+              <Clock size={18} /> End Question
+            </button>
+          </div>
+          <PlayerStatusPanel />
         </div>
-      </div>
     );
   }
 

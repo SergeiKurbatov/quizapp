@@ -4,7 +4,7 @@ import SockJS from "sockjs-client";
 
 const WS_URL = process.env.REACT_APP_WS_URL;
 
-export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestion, onQuestionResult, onAnswerCount, onGameEnded }) {
+export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestion, onQuestionResult, onAnswerCount, onGameEnded, onPlayerStatus }) {
   const clientRef = useRef(null);
   const onPlayersUpdateRef = useRef(onPlayersUpdate);
   const onKickedRef = useRef(onKicked);
@@ -12,6 +12,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
   const onQuestionResultRef = useRef(onQuestionResult);
   const onAnswerCountRef = useRef(onAnswerCount);
   const onGameEndedRef = useRef(onGameEnded);
+  const onPlayerStatusRef = useRef(onPlayerStatus);
 
   onPlayersUpdateRef.current = onPlayersUpdate;
   onKickedRef.current = onKicked;
@@ -19,6 +20,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
   onQuestionResultRef.current = onQuestionResult;
   onAnswerCountRef.current = onAnswerCount;
   onGameEndedRef.current = onGameEnded;
+  onPlayerStatusRef.current = onPlayerStatus;
 
   const disconnect = useCallback(() => {
     if (clientRef.current?.active) {
@@ -59,6 +61,11 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
         client.subscribe(`/topic/game/${gamePin}/finished`, (message) => {
           const data = JSON.parse(message.body);
           if (onGameEndedRef.current) onGameEndedRef.current(data);
+        });
+
+        client.subscribe(`/topic/game/${gamePin}/player-status`, (message) => {
+          const data = JSON.parse(message.body);
+          if (onPlayerStatusRef.current) onPlayerStatusRef.current(data.status);
         });
 
         if (nickname) {
