@@ -278,6 +278,20 @@ function HostLobby() {
 
           <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-6">{currentQuestion.text}</h2>
+
+            {/* Image */}
+            {currentQuestion.imageUrl && (
+              <div className="w-full flex justify-center mb-8">
+                <div className="max-w-2xl w-full rounded-2xl overflow-hidden border-4 border-white/5 bg-black/20 shadow-inner">
+                  <img 
+                    src={currentQuestion.imageUrl} 
+                    alt="Question" 
+                    className="w-full h-auto max-h-[40vh] object-contain block mx-auto" 
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               {currentQuestion.answers.map((answer, i) => (
                   <div key={answer.id} className={`${ANSWER_COLORS[i % 10]} opacity-80 rounded-xl px-4 py-4 font-semibold`}>
