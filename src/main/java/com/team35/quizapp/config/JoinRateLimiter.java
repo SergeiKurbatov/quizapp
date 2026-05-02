@@ -8,7 +8,7 @@ import java.util.List;
 @Component
 public class JoinRateLimiter {
 
-    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_ATTEMPTS = 1000;
     private static final long WINDOW_MS = 60_000;
 
     private final ConcurrentHashMap<String, List<Long>> attempts = new ConcurrentHashMap<>();
