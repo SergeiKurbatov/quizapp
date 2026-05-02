@@ -1,4 +1,5 @@
 package com.team35.quizapp.config;
+import com.team35.quizapp.dto.websocket.PlayerStatusMessage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,12 @@ public class WebSocketEventListener {
             messagingTemplate.convertAndSend(
                     "/topic/game/" + gamePin + "/players",
                     nicknames
+            );
+
+            // Broadcast updated connection status to host
+            messagingTemplate.convertAndSend(
+                    "/topic/game/" + gamePin + "/player-status",
+                    new PlayerStatusMessage(sessionCache.getConnectionStatus(gamePin))
             );
         }
     }
