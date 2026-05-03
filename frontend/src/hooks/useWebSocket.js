@@ -4,7 +4,7 @@ import SockJS from "sockjs-client";
 
 const WS_URL = process.env.REACT_APP_WS_URL;
 
-export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestion, onQuestionResult, onAnswerCount, onGameEnded, onPlayerStatus }) {
+export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQuestion, onQuestionResult, onAnswerCount, onGameEnded, onPlayerStatus, onJoinRejected }) {
   const clientRef = useRef(null);
   const onPlayersUpdateRef = useRef(onPlayersUpdate);
   const onKickedRef = useRef(onKicked);
@@ -13,6 +13,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
   const onAnswerCountRef = useRef(onAnswerCount);
   const onGameEndedRef = useRef(onGameEnded);
   const onPlayerStatusRef = useRef(onPlayerStatus);
+  const onJoinRejectedRef = useRef(onJoinRejected);
 
   onPlayersUpdateRef.current = onPlayersUpdate;
   onKickedRef.current = onKicked;
@@ -21,6 +22,7 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
   onAnswerCountRef.current = onAnswerCount;
   onGameEndedRef.current = onGameEnded;
   onPlayerStatusRef.current = onPlayerStatus;
+  onJoinRejectedRef.current = onJoinRejected;
 
   const disconnect = useCallback(() => {
     if (clientRef.current?.active) {
@@ -74,6 +76,13 @@ export function useWebSocket({ gamePin, nickname, onPlayersUpdate, onKicked, onQ
             const kickedNickname = [...data.players][0];
             if (kickedNickname === nickname && onKickedRef.current) {
               onKickedRef.current();
+            }
+          });
+
+          client.subscribe(`/topic/game/${gamePin}/join-rejected`, (message) => {
+            const data = JSON.parse(message.body);
+            if (data.nickname === nickname && onJoinRejectedRef.current) {
+              onJoinRejectedRef.current(data.reason);
             }
           });
 

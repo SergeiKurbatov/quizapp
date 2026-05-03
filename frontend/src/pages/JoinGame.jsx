@@ -164,6 +164,12 @@ function JoinGame() {
     localStorage.removeItem("quizSession");
   }, []);
 
+  const onJoinRejected = useCallback((reason) => {
+    setError(reason || "Join rejected");
+    setJoined(false);
+    localStorage.removeItem("quizSession");
+  }, []);
+
   useWebSocket({
     gamePin: joined ? parseInt(gamePin) : null,
     nickname: joined ? nickname : null,
@@ -172,6 +178,7 @@ function JoinGame() {
     onQuestion,
     onQuestionResult,
     onGameEnded,
+    onJoinRejected,
   });
 
   function handleJoin() {
@@ -179,6 +186,7 @@ function JoinGame() {
       setError("Please enter a nickname!");
       return;
     }
+    setError(null);
     localStorage.setItem("quizSession", JSON.stringify({ gamePin, nickname, score: 0 }));
     setJoined(true);
   }

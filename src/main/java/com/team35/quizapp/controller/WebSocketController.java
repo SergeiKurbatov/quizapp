@@ -45,38 +45,49 @@ public class WebSocketController {
         String ip = (String) headerAccessor.getSessionAttributes().getOrDefault("ip", "unknown");
         if (!joinRateLimiter.isAllowed(ip)) {
             log.warn("Rate limit exceeded for IP: {}", ip);
-            messagingTemplate.convertAndSendToUser(
-                    wsSessionId, "/queue/error", "Too many join attempts. Please wait."
-            );
+            sendJoinRejected(gamePin, nickname, "Too many join attempts. Please wait.");
             return;
         }
 
-        playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
-                .ifPresent(p -> {
-                    if (Boolean.TRUE.equals(p.getIsKicked())) {
-                        log.warn("Kicked player tried to rejoin: nickname={}, pin={}", nickname, gamePin);
-                        messagingTemplate.convertAndSendToUser(
-                                wsSessionId, "/queue/error",
-                                "You have been kicked from this game."
-                        );
-                        return;
-                    }
-                });
+        var existing = playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname);
 
-        playerRepository.findByGameSessionGamePinAndNickname(gamePin, nickname)
-                .orElseGet(() -> {
-                    GameSession session = gameSessionRepository.findByGamePin(gamePin)
-                            .orElseThrow(() -> new RuntimeException("Game session not found: " + gamePin));
-                    Player player = Player.builder()
-                            .gameSession(session)
-                            .nickname(nickname)
-                            .build();
-                    return playerRepository.save(player);
-                });
+        if (existing.isPresent() && Boolean.TRUE.equals(existing.get().getIsKicked())) {
+            log.warn("Kicked player tried to rejoin: nickname={}, pin={}", nickname, gamePin);
+            sendJoinRejected(gamePin, nickname, "You have been kicked from this game.");
+            return;
+        }
+
+        // Reject if this nickname is currently connected from a different WebSocket session.
+        // On a normal disconnect (refresh/navigate), connectionStatus is set to false first,
+        // so reconnects with the same nickname still pass through.
+        Boolean alreadyConnected = sessionCache.getConnectionStatus(gamePin).get(nickname);
+        String existingSid = sessionCache.getSessionIdByNickname(gamePin, nickname);
+        if (Boolean.TRUE.equals(alreadyConnected) && existingSid != null && !existingSid.equals(wsSessionId)) {
+            log.warn("Duplicate-nickname join rejected: nickname={}, pin={}", nickname, gamePin);
+            sendJoinRejected(gamePin, nickname, "Nickname already in use in this game.");
+            return;
+        }
+
+        existing.orElseGet(() -> {
+            GameSession session = gameSessionRepository.findByGamePin(gamePin)
+                    .orElseThrow(() -> new RuntimeException("Game session not found: " + gamePin));
+            Player player = Player.builder()
+                    .gameSession(session)
+                    .nickname(nickname)
+                    .build();
+            return playerRepository.save(player);
+        });
 
         sessionCache.addSession(gamePin, wsSessionId, nickname);
         log.info("Player joined: nickname={}, pin={}", nickname, gamePin);
         broadcastPlayerList(gamePin);
+    }
+
+    private void sendJoinRejected(Integer gamePin, String nickname, String reason) {
+        messagingTemplate.convertAndSend(
+                "/topic/game/" + gamePin + "/join-rejected",
+                new JoinRejectedMessage(nickname, reason)
+        );
     }
 
     public void broadcastPlayerList(Integer gamePin) {
