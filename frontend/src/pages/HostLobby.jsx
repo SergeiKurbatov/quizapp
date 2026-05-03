@@ -21,25 +21,59 @@ const MEDAL = ["🥇", "🥈", "🥉"];
 function HostLobby() {
   const { state } = useLocation();
   const { gamePin } = useParams();
-  const session = state?.session;
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
+  const STORAGE_KEY = `hostSession_${gamePin}`;
   const [players, setPlayers] = useState([]);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [phase, setPhase] = useState("waiting"); // waiting | playing | result | finished
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(null);
-  const [answerCount, setAnswerCount] = useState({ answered: 0, total: 0 });
-  const [questionResult, setQuestionResult] = useState(null);
-  const [finalLeaderboard, setFinalLeaderboard] = useState([]);
-  const { 
-    displayLeaderboard, 
-    isUpdating, 
-    updateLeaderboard 
-  } = useDelayedLeaderboard(1000);
-  const prevLeaderboardRef = useRef([]);
+  const [copied, setCopied] = useState(false);
   const questionEndedRef = useRef(false);
-  const [playerStatus, setPlayerStatus] = useState({}); // nickname → boolean
+
+  // Read saved state once on mount
+  const saved = useRef((() => {
+    try { return JSON.parse(localStorage.getItem(`hostSession_${gamePin}`)); }
+    catch { return null; }
+  })()).current;
+
+  const [session, setSession] = useState(() => state?.session || saved?.session || null);
+  const [gameStarted, setGameStarted] = useState(() => saved?.gameStarted ?? false);
+  const [phase, setPhase] = useState(() => saved?.phase || "waiting");
+  const [currentQuestion, setCurrentQuestion] = useState(() => saved?.currentQuestion || null);
+  const [questionResult, setQuestionResult] = useState(() => saved?.questionResult || null);
+  const [finalLeaderboard, setFinalLeaderboard] = useState(() => saved?.finalLeaderboard || []);
+  const [questionStartedAt, setQuestionStartedAt] = useState(() => saved?.questionStartedAt || null);
+  const [answerCount, setAnswerCount] = useState(() => saved?.answerCount || { answered: 0, total: 0 });
+
+  // Restore timer from timestamp on refresh
+  const [timeLeft, setTimeLeft] = useState(() => {
+    if (saved?.phase === "playing" && saved?.currentQuestion && saved?.questionStartedAt) {
+      const elapsed = Math.floor((Date.now() - saved.questionStartedAt) / 1000);
+      const remaining = saved.currentQuestion.timeLimit - elapsed;
+      return remaining > 0 ? remaining : 0;
+    }
+    return null;
+  });
+
+  const {
+    displayLeaderboard,
+    isUpdating,
+    updateLeaderboard
+  } = useDelayedLeaderboard(1000);
+
+  // On restore to result phase, seed the animated leaderboard immediately
+  useEffect(() => {
+    if (saved?.phase === "result" && saved?.questionResult?.leaderboard) {
+      updateLeaderboard(saved.questionResult.leaderboard);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [playerStatus, setPlayerStatus] = useState(() => {
+    if (saved?.session) {
+      return Object.fromEntries(
+          (saved?.playerStatusSnapshot || []).map(n => [n, true])
+      );
+    }
+    return {};
+  });
   const audioEnabled = currentQuestion?.audioEnabled ?? session?.audioEnabled ?? true;
   const { muted, toggleMute } = useGameMusic(phase, audioEnabled);
   const muteButton = (
@@ -47,6 +81,35 @@ function HostLobby() {
       {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
     </button>
   );
+
+  // Sync session from router state on fresh navigation
+  useEffect(() => {
+    if (state?.session) setSession(state.session);
+  }, [state]);
+
+  // If restored to playing phase with expired timer, mark question as ended
+  useEffect(() => {
+    if (saved?.phase === "playing" && timeLeft === 0) {
+      questionEndedRef.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist host state to localStorage on every relevant change
+  useEffect(() => {
+    if (!session) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      session,
+      gameStarted,
+      phase,
+      currentQuestion,
+      questionResult,
+      finalLeaderboard,
+      questionStartedAt,
+      answerCount,
+      playerStatusSnapshot: Object.keys(playerStatus),
+    }));
+  }, [session, gameStarted, phase, currentQuestion, questionResult, finalLeaderboard, questionStartedAt, answerCount, playerStatus, STORAGE_KEY]);
 
   useEffect(() => {
     if (timeLeft === null || timeLeft === 0) return;
@@ -82,6 +145,7 @@ function HostLobby() {
     setQuestionResult(null);
     questionEndedRef.current = false;
     setPhase("playing");
+    setQuestionStartedAt(Date.now());
   }, []);
 
   const onQuestionResult = useCallback((result) => {
@@ -99,7 +163,8 @@ function HostLobby() {
   const onGameEnded = useCallback((data) => {
     setFinalLeaderboard(data.leaderboard || []);
     setPhase("finished");
-  }, []);
+    localStorage.removeItem(`hostSession_${gamePin}`);
+  }, [gamePin]);
 
   const onPlayerStatus = useCallback((status) => {
     setPlayerStatus(status || {});
@@ -234,8 +299,8 @@ function HostLobby() {
           </div>
 
           <button
-            onClick={() => navigate("/Home")}
-            className="w-full py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 transition"
+              onClick={() => { localStorage.removeItem(STORAGE_KEY); navigate("/Home"); }}
+              className="w-full py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 transition"
           >
             Back to Quizzes
           </button>
