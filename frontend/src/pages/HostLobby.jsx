@@ -6,6 +6,8 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../services/authService";
 import { QRCodeSVG } from 'qrcode.react';
+import AnimatedLeaderboard from "../components/game/AnimatedLeaderboard";
+import { useDelayedLeaderboard } from "../hooks/useDelayedLeaderboard";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -30,6 +32,12 @@ function HostLobby() {
   const [answerCount, setAnswerCount] = useState({ answered: 0, total: 0 });
   const [questionResult, setQuestionResult] = useState(null);
   const [finalLeaderboard, setFinalLeaderboard] = useState([]);
+  const { 
+    displayLeaderboard, 
+    isUpdating, 
+    updateLeaderboard 
+  } = useDelayedLeaderboard(1000);
+  const prevLeaderboardRef = useRef([]);
   const questionEndedRef = useRef(false);
   const audioEnabled = currentQuestion?.audioEnabled ?? session?.audioEnabled ?? true;
   const { muted, toggleMute } = useGameMusic(phase, audioEnabled);
@@ -76,9 +84,12 @@ function HostLobby() {
   }, []);
 
   const onQuestionResult = useCallback((result) => {
-    setQuestionResult(result);
+    setQuestionResult(result);  
     setPhase("result");
-  }, []);
+
+   // Use the hook to handle the delay logic
+    updateLeaderboard(result.leaderboard);
+  }, [updateLeaderboard]);
 
   const onAnswerCount = useCallback((count) => {
     setAnswerCount(count);
@@ -223,18 +234,13 @@ function HostLobby() {
             </div>
           </div>
 
-          <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 mb-6">
-            <h3 className="text-white/40 uppercase tracking-widest text-sm mb-4">Top Players</h3>
-            {questionResult.leaderboard.map((entry) => (
-              <div key={entry.position} className="flex items-center gap-4 py-3 border-b border-white/5 last:border-0">
-                <span className={`text-2xl font-black w-8 text-center ${entry.position === 1 ? "text-yellow-400" : entry.position === 2 ? "text-gray-300" : entry.position === 3 ? "text-amber-600" : "text-white/40"}`}>
-                  {entry.position}
-                </span>
-                <span className="flex-1 font-semibold">{entry.nickname}</span>
-                <span className="text-violet-400 font-bold">{entry.score} pts</span>
-              </div>
-            ))}
-          </div>
+          {/* temporary result Leaderboard */}
+          <AnimatedLeaderboard 
+            leaderboard={displayLeaderboard} 
+            isUpdating={isUpdating} 
+            title="Top Players"
+          />
+
 
           {currentQuestion.questionIndex + 1 < currentQuestion.totalQuestions ? (
             <button onClick={handleNextQuestion} className="w-full py-4 rounded-xl font-bold bg-violet-500 hover:bg-violet-400 transition flex items-center justify-center gap-2">

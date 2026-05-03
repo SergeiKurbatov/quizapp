@@ -4,6 +4,8 @@ import axios from "axios";
 import { Volume2, VolumeX } from "lucide-react";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useGameMusic } from "../hooks/useGameMusic";
+import AnimatedLeaderboard from "../components/game/AnimatedLeaderboard";
+import { useDelayedLeaderboard } from "../hooks/useDelayedLeaderboard";
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -56,7 +58,11 @@ function JoinGame() {
   const [joined, setJoined] = useState(false);
   const [kicked, setKicked] = useState(false);
   const [error, setError] = useState(null);
-
+  const { 
+    displayLeaderboard, 
+    isUpdating, 
+    updateLeaderboard 
+  } = useDelayedLeaderboard(1000);
   // Question phase
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -146,7 +152,11 @@ function JoinGame() {
 
   const onQuestionResult = useCallback((result) => {
     setQuestionResult(result);
-  }, []);
+    
+    if (result.leaderboard) {
+      updateLeaderboard(result.leaderboard);
+    }
+  }, [updateLeaderboard]);
 
   const onGameEnded = useCallback((data) => {
     setFinalLeaderboard(data.leaderboard || []);
@@ -290,7 +300,7 @@ function JoinGame() {
               </p>
             )}
           </div>
-          <div className="bg-gray-900 border border-white/10 rounded-2xl p-5 mb-5">
+          {/*<div className="bg-gray-900 border border-white/10 rounded-2xl p-5 mb-5">
             <p className="text-white/40 text-sm uppercase tracking-widest mb-3">Leaderboard</p>
             {questionResult.leaderboard.map((entry) => {
               const isMe = entry.nickname === nickname;
@@ -302,7 +312,13 @@ function JoinGame() {
                 </div>
               );
             })}
-          </div>
+          </div>*/}
+          <AnimatedLeaderboard 
+            leaderboard={displayLeaderboard} 
+            isUpdating={isUpdating} 
+            title="Top Players"
+          />
+
           <p className="text-center text-white/30 text-sm">Waiting for next question...</p>
         </div>
       </div>
